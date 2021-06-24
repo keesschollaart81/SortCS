@@ -4,6 +4,6 @@ namespace sortcs
 {
     public interface ITracker
     {
-        public IEnumerable<Track> Track(IEnumerable<BoundingBox> boxes);
+        IEnumerable<Track> Track(IEnumerable<BoundingBox> boxes);
     }
 }
