@@ -107,7 +107,7 @@ namespace SortCS.Kalman
 
         private static Vector ToMeasurement(BoundingBox box)
         {
-            return new Vector((double)box.Center.X, (double)box.Center.Y, (double)box.Width * (double)box.Height, (double)box.Width / (double)box.Height);
+            return new Vector((double)box.Center.X, (double)box.Center.Y, (double)box.Box.Width * (double)box.Box.Height, (double)box.Box.Width / (double)box.Box.Height);
         }
 
         private static BoundingBox ToBoundingBox(Vector currentState)

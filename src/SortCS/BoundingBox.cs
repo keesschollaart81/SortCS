@@ -9,16 +9,24 @@ namespace sortcs
         {
 
         }
-        public BoundingBox(int classIx, string className, float tly, float tlx, float bry, float brx, float score)
+        public BoundingBox(int classIx, string className, float tly, float tlx, float w, float h, float score)
         {
             Class = classIx;
             ClassName = className;
-            Box = new float[] { tly, tlx, bry, brx };
+            Box = new RectangleF(tlx, tly, w, h);
             Score = score;
-            IsInvalid = Box.Any(b => float.IsNaN(b));
+            IsInvalid = Box.IsEmpty;
         }
 
-        public float[] Box { get; set; }
+        public RectangleF Box { get; set; }
+
+        public PointF Center
+        {
+            get
+            {
+                return new PointF(Box.Left + (Box.Width / 2f), Box.Top + (Box.Left / 2f));
+            }
+        }
 
         public int Class { get; set; }
 
@@ -26,10 +34,5 @@ namespace sortcs
 
         public float Score { get; set; }
         public bool IsInvalid { get; }
-        public float Width { get => Box[3] - Box[1]; }
-
-        public float Height { get => Box[2] - Box[0]; }
-
-        public PointF Center { get => new PointF(Box[1] + ((Box[3] - Box[1]) / 2), Box[0] + ((Box[2] - Box[0]) / 2)); }
     }
 }

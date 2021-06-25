@@ -9,19 +9,9 @@ namespace sortcs
     {
         static void Main(string[] args)
         {
-            var filter = new KalmanFilter(7, 4)
-            {
-                StateTransitionMatrix = new Matrix(new double[,] { { 1, 0, 0, 0, 1, 0, 0 }, { 0, 1, 0, 0, 0, 1, 0 }, { 0, 0, 1, 0, 0, 0, 1 }, { 0, 0, 0, 1, 0, 0, 0 }, { 0, 0, 0, 0, 1, 0, 0 }, { 0, 0, 0, 0, 0, 1, 0 }, { 0, 0, 0, 0, 0, 0, 1 } }),
-                MeasurementFunction = new Matrix(new double[,] { { 1, 0, 0, 0, 1, 0, 0 }, { 0, 1, 0, 0, 0, 1, 0 }, { 0, 0, 1, 0, 0, 0, 1 }, { 0, 0, 0, 1, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0, 0 } }),
-                StateUncertainty = new Matrix(new double[,] { { 1, 0, 0, 0, 0, 0, 0 }, { 0, 1, 0, 0, 0, 0, 0 }, { 0, 0, 10, 0, 0, 0, 0 }, { 0, 0, 0, 10, 0, 0, 0 }, { 0, 0, 0, 0, 10000, 0, 0 }, { 0, 0, 0, 0, 0, 10000, 0 }, { 0, 0, 0, 0, 0, 0, 10000 } }),
-                ProcessUncertainty = new Matrix(new double[,] { { 1, 0, 0, 0, 0, 0, 0 }, { 0, 1, 0, 0, 0, 0, 0 }, { 0, 0, 1, 0, 0, 0, 0 }, { 0, 0, 0, 1, 0, 0, 0 }, { 0, 0, 0, 0, .01, 0, 0 }, { 0, 0, 0, 0, 0, .01, 0 }, { 0, 0, 0, 0, 0, 0, .001 } }),
-                UncertaintyCovariances = Matrix.Identity(7) * 10
-
-            };
-
             var trackers = new ITracker[]{
-                new SimpleBoxTracker()
-                // todo: add Sort-like tracker
+                new SimpleBoxTracker(),
+                new SortTracker()
             };
 
             foreach (var tracker in trackers)
@@ -46,7 +36,7 @@ namespace sortcs
                 var firstBoxOfTrack2 = complexTrack2.History.First();
                 var lastBoxOfTrack2 = complexTrack2.History.Last();
 
-                if (firstBoxOfTrack2.Box[0] != 0.8 || lastBoxOfTrack2.Box[0] != 0.1)
+                if (firstBoxOfTrack2.Box.Top != 0.7 || lastBoxOfTrack2.Box.Left != 0.1)
                 {
                     // this is where SimpleTracker misses the boat
                     throw new Exception("Track 2 did not start/end at expect location");
@@ -60,16 +50,16 @@ namespace sortcs
             var simpleTrack = new List<Frame>{
                 new Frame(new List<BoundingBox>()),
                 new Frame(new List<BoundingBox>{
-                    new BoundingBox(1, "person", 0.1f, 0.1f, 0.3f, 0.3f, 1)
+                    new BoundingBox(1, "person", 0.1f, 0.1f, 0.2f, 0.2f, 1)
                 }),
                 new Frame(new List<BoundingBox>{
-                    new BoundingBox(1, "person", 0.2f, 0.2f, 0.4f, 0.4f, 1)
+                    new BoundingBox(1, "person", 0.2f, 0.2f, 0.2f, 0.2f, 1)
                 }),
                 new Frame(new List<BoundingBox>{
-                    new BoundingBox(1, "person", 0.3f, 0.3f, 0.5f, 0.5f, 1)
+                    new BoundingBox(1, "person", 0.3f, 0.3f, 0.2f, 0.2f, 1)
                 }),
                 new Frame(new List<BoundingBox>{
-                    new BoundingBox(1, "person", 0.4f, 0.4f, 0.6f, 0.6f, 1)
+                    new BoundingBox(1, "person", 0.4f, 0.4f, 0.2f, 0.2f, 1)
                 }),
                 new Frame(new List<BoundingBox>()),
                 new Frame(new List<BoundingBox>()),
@@ -96,24 +86,24 @@ namespace sortcs
             var simpleTrack = new List<Frame>{
                 new Frame(new List<BoundingBox>()),
                 new Frame(new List<BoundingBox>{
-                    new BoundingBox(1, "person", 0.1f, 0.1f, 0.2f, 0.2f, 1),
-                    new BoundingBox(1, "person", 0.8f, 0.3f, 0.9f, 0.4f, 1)
+                    new BoundingBox(1, "person", 0.1f, 0.1f, 0.1f, 0.1f, 1),
+                    new BoundingBox(1, "person", 0.8f, 0.3f, 0.1f, 0.1f, 1)
                 }),
                 new Frame(new List<BoundingBox>{
-                    new BoundingBox(1, "person", 0.3f, 0.3f, 0.4f, 0.4f, 1),
-                    new BoundingBox(1, "person", 0.6f, 0.35f, 0.7f, 0.45f, 1)
+                    new BoundingBox(1, "person", 0.3f, 0.3f, 0.1f, 0.1f, 1),
+                    new BoundingBox(1, "person", 0.6f, 0.35f, 0.1f, 0.1f, 1)
                 }),
                 new Frame(new List<BoundingBox>{
-                    new BoundingBox(1, "person", 0.45f, 0.45f, 0.55f, 0.55f, 1),
-                    new BoundingBox(1, "person", 0.4f, 0.4f, 0.5f, 0.5f, 1)
+                    new BoundingBox(1, "person", 0.45f, 0.45f, 0.1f, 0.1f, 1),
+                    new BoundingBox(1, "person", 0.4f, 0.4f, 0.1f, 0.1f, 1)
                 }),
                 new Frame(new List<BoundingBox>{
-                    new BoundingBox(1, "person", 0.6f, 0.6f, 0.7f, 0.7f, 1),
-                    new BoundingBox(1, "person", 0.25f, 0.45f, 0.35f, 0.55f, 1)
+                    new BoundingBox(1, "person", 0.6f, 0.6f, 0.1f, 0.1f, 1),
+                    new BoundingBox(1, "person", 0.25f, 0.45f, 0.1f, 0.1f, 1)
                 }),
                 new Frame(new List<BoundingBox>{
-                    new BoundingBox(1, "person", 0.7f, 0.7f, 0.8f, 0.8f, 1),
-                    new BoundingBox(1, "person", 0.1f, 0.5f, 0.2f, 0.6f, 1)
+                    new BoundingBox(1, "person", 0.7f, 0.7f, 0.1f, 0.1f, 1),
+                    new BoundingBox(1, "person", 0.1f, 0.5f, 0.1f, 0.1f, 1)
                 }),
                 new Frame(new List<BoundingBox>()),
                 new Frame(new List<BoundingBox>()),
