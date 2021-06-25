@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using SortCS.Kalman;
 
 namespace sortcs
 {
@@ -8,6 +9,16 @@ namespace sortcs
     {
         static void Main(string[] args)
         {
+            var filter = new KalmanFilter(7, 4)
+            {
+                StateTransitionMatrix = new Matrix(new double[,] { { 1, 0, 0, 0, 1, 0, 0 }, { 0, 1, 0, 0, 0, 1, 0 }, { 0, 0, 1, 0, 0, 0, 1 }, { 0, 0, 0, 1, 0, 0, 0 }, { 0, 0, 0, 0, 1, 0, 0 }, { 0, 0, 0, 0, 0, 1, 0 }, { 0, 0, 0, 0, 0, 0, 1 } }),
+                MeasurementFunction = new Matrix(new double[,] { { 1, 0, 0, 0, 1, 0, 0 }, { 0, 1, 0, 0, 0, 1, 0 }, { 0, 0, 1, 0, 0, 0, 1 }, { 0, 0, 0, 1, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0, 0 } }),
+                StateUncertainty = new Matrix(new double[,] { { 1, 0, 0, 0, 0, 0, 0 }, { 0, 1, 0, 0, 0, 0, 0 }, { 0, 0, 10, 0, 0, 0, 0 }, { 0, 0, 0, 10, 0, 0, 0 }, { 0, 0, 0, 0, 10000, 0, 0 }, { 0, 0, 0, 0, 0, 10000, 0 }, { 0, 0, 0, 0, 0, 0, 10000 } }),
+                ProcessUncertainty = new Matrix(new double[,] { { 1, 0, 0, 0, 0, 0, 0 }, { 0, 1, 0, 0, 0, 0, 0 }, { 0, 0, 1, 0, 0, 0, 0 }, { 0, 0, 0, 1, 0, 0, 0 }, { 0, 0, 0, 0, .01, 0, 0 }, { 0, 0, 0, 0, 0, .01, 0 }, { 0, 0, 0, 0, 0, 0, .001 } }),
+                UncertaintyCovariances = Matrix.Identity(7) * 10
+
+            };
+
             var trackers = new ITracker[]{
                 new SimpleBoxTracker()
                 // todo: add Sort-like tracker
