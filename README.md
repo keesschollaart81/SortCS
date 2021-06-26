@@ -3,16 +3,19 @@
 SortCS is a 'Multiple Object Tracker' as described in [this paper](https://arxiv.org/abs/1602.00763), implemented in C#.
 
 > SORT is a barebones implementation of a visual multiple object tracking framework based on rudimentary data association and state estimation techniques. It is designed for online tracking applications where only past and current frames are available and the method produces object identities on the fly. While this minimalistic tracker doesn't handle occlusion or re-entering objects its purpose is to serve as a baseline and testbed for the development of future trackers.
+
 > SORT was initially described in this paper. At the time of the initial publication, SORT was ranked the best open source multiple object tracker on the MOT benchmark.
 
 ## Using
 
 ```cs
+using SortCS;
+
 ITracker tracker = new SortTracker();
 tracker.Track(new[]
 {
-	new BoundingBox(1, "person", 1695,383,159,343, 1),
-	new BoundingBox(1, "person", 1293,455,83,213,  1)
+    new BoundingBox(1, "person", 1695,383,159,343, 1),
+    new BoundingBox(1, "person", 1293,455,83,213,  1)
 });
 tracker.Track(new[]
 {
@@ -31,6 +34,9 @@ var tracks = tracker.Track(new[]
 });
 
 Assert.AreEqual(2 tracks.Count());
+Assert.AreEqual(TrackState.Active, tracks.First().State);
+Assert.AreEqual(4, tracks.First().History.Count);
+
 ```
 
 ## Evaluation
@@ -39,7 +45,7 @@ The performance of this implementation can be evaluation using the 'SortCS.Evalu
 The output can be used for https://motchallenge.net/ and their [TrackEval SDK](https://github.com/JonathonLuiten/TrackEval/). 
 Brief instructions:
 - Clone this repo and the TrackEval in the same folder / next to each other
-- Run the SortCS.Evaluate Console app. The `--data-folder` arguments needs to point to the `TrackEval/data` folder.
+- Run the SortCS.Evaluate Console app. The `--data-folder` arguments needs to point to the data folder in the `TrackEval` repo.
 - Make sure that the outputs (tracks+detections) will be stored in `TrackEval/data/trackers/mot_challenge/MOT15-train/SortCS/data`
 - Run TrackEval (according to their [readme](https://github.com/JonathonLuiten/TrackEval/blob/master/docs/MOTChallenge-Official/Readme.md)):
   `python scripts/run_mot_challenge.py --BENCHMARK MOT15 --SPLIT_TO_EVAL train --TRACKERS_TO_EVAL SortCS --METRICS HOTA CLEAR Identity VACE --USE_PARALLEL False --NUM_PARALLEL_CORES 1`
@@ -65,5 +71,5 @@ COMBINED                           6.1129    2.7381    19.632    5.0048    4.629
 
 # Attributions
 
-- [MaartenX, for implementing some of the core pieces of this repo](https://github.com/MaartenX/)
-- [abewley's Python implementation of Sort, used for validation/reference](https://github.com/abewley/sort)
+- [MaartenX](https://github.com/MaartenX/), for implementing some of the core pieces of this repo
+- [abewley's Python implementation of Sort](https://github.com/abewley/sort), used for validation/reference

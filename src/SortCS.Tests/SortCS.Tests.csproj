@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\SortCS\SortCS.csproj" />
+    <ProjectReference Include="..\SortCS\SortCS.csproj" />
   </ItemGroup>
 
 </Project>
