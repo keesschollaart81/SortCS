@@ -2,10 +2,22 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "SortCS",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/src/SortCS/bin/Debug/net5.0/SortCS.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/src/SortCS",
+            "stopAtEntry": false,
+            "console": "internalConsole",
+            "requireExactSource": false
+        },
+        {
             // Use IntelliSense to find out which attributes exist for C# debugging
             // Use hover for the description of the existing attributes
             // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
-            "name": ".NET Core Launch (console)",
+            "name": "SortCS.Evaluate",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",

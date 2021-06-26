@@ -25,8 +25,6 @@ namespace sortcs
         {
             _frameCount++;
 
-
-
             var toDelete = new List<KalmanBoxTracker>();
             var trackedBoxes = new List<BoundingBox>();
 

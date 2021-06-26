@@ -10,7 +10,7 @@ namespace sortcs
         static void Main(string[] args)
         {
             var trackers = new ITracker[]{
-                new SimpleBoxTracker(),
+                //new SimpleBoxTracker(),
                 new SortTracker()
             };
 
