@@ -120,7 +120,7 @@ namespace sortcs
                 {
                     var tracks = result.Select(x => $"{x.TrackId}{(x.State == TrackState.Active ? null : $": {x.State}")}");
 
-                    Console.WriteLine($"Tracks: {Tracks}, Longest: {longest}, Ended: {ended}");
+                    Console.WriteLine($"Tracks: [{string.Join(',',tracks)}], Longest: {longest}, Ended: {ended}");
                 }
             }
 
