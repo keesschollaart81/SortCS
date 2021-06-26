@@ -13,7 +13,8 @@ jobs:
 
     strategy:
       matrix:
-        os: [ ubuntu-latest, windows-latest, macos-latest ]
+        os: [ubuntu-latest, windows-latest, macos-latest] 
+        dotnet-version: [ '2.1.x', '3.1.x', '5.0.x' ]
 
     runs-on: ${{ matrix.os }}
 
@@ -21,36 +22,37 @@ jobs:
 
     - uses: actions/checkout@v2
 
-    - name: Setup .NET Core SDK 2.1
+    - name: Setup .NET Core SDK  
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: '2.1.x'
-
-    - name: Setup .NET Core SDK 3.1
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: '3.1.x'
-
-    - name: Setup .NET SDK 5.0
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: '5.0.x'
-        
+            dotnet-version: ${{ matrix.dotnet-version }}
+ 
     - name: Restore dependencies
       run: dotnet restore
 
     - name: Build
       run: dotnet build --no-restore
 
-    - name: Test on .NET Core 2.1
-      run: dotnet test -c Release -f netcoreapp2.1 --no-build --no-restore  
+    - name: Test with dotnet
+      run: dotnet test --logger trx --results-directory "TestResults-${{ matrix.dotnet-version }}"
+   
+    - name: Upload dotnet test results
+      uses: actions/upload-artifact@v2
+      with:
+        name: dotnet-results-${{ matrix.dotnet-version }}
+        path: TestResults-${{ matrix.dotnet-version }}
+      # Use always() to always run this step to publish test results when there are test failures
+      if: ${{ always() }}
 
-    - name: Test on .NET Core 3.1
-      run: dotnet test -c Release -f netcoreapp3.1 --no-build --no-restore  
+    # - name: Test on .NET Core 2.1
+    #   run: dotnet test -c Release -f netcoreapp2.1 --no-build --no-restore  --verbosity normal  
 
-    - name: Test on .NET Core 5.0
-      run: dotnet test -c Release -f net5.0 --no-build --no-restore 
+    # - name: Test on .NET Core 3.1
+    #   run: dotnet test -c Release -f netcoreapp3.1 --no-build --no-restore  --verbosity normal
 
-    - name: Test on .NET Framework 4.6.1 (Windows only)
-      if: matrix.os == 'windows-latest'
-      run: dotnet test -c Release -f net461 --no-build --no-restore 
+    # - name: Test on .NET Core 5.0
+    #   run: dotnet test -c Release -f net5.0 --no-build --no-restore  --verbosity normal
+
+    # - name: Test on .NET Framework 4.6.1 (Windows only)
+    #   if: matrix.os == 'windows-latest'
+    #   run: dotnet test -c Release -f net461 --no-build --no-restore 
