@@ -3,60 +3,64 @@ using System.Collections.Generic;
 
 namespace SortCS.Kalman
 {
-    class KalmanBoxTracker
+    internal class KalmanBoxTracker
     {
         private static int _currentId;
         private readonly KalmanFilter _filter;
+        private readonly List<BoundingBox> _history = new List<BoundingBox>();
         private int _timeSinceUpdate;
         private int _hits;
         private int _hitStreak;
         private int _originalId;
         private int _age;
-        private List<BoundingBox> _history = new List<BoundingBox>();
 
         public KalmanBoxTracker(BoundingBox box)
         {
             _filter = new KalmanFilter(7, 4)
             {
                 StateTransitionMatrix = new Matrix(
-                    new double[,] {
-                    { 1, 0, 0, 0, 1, 0, 0 },
-                    { 0, 1, 0, 0, 0, 1, 0 },
-                    { 0, 0, 1, 0, 0, 0, 1 },
-                    { 0, 0, 0, 1, 0, 0, 0 },
-                    { 0, 0, 0, 0, 1, 0, 0 },
-                    { 0, 0, 0, 0, 0, 1, 0 },
-                    { 0, 0, 0, 0, 0, 0, 1 }
+                    new double[,]
+                    {
+                        { 1, 0, 0, 0, 1, 0, 0 },
+                        { 0, 1, 0, 0, 0, 1, 0 },
+                        { 0, 0, 1, 0, 0, 0, 1 },
+                        { 0, 0, 0, 1, 0, 0, 0 },
+                        { 0, 0, 0, 0, 1, 0, 0 },
+                        { 0, 0, 0, 0, 0, 1, 0 },
+                        { 0, 0, 0, 0, 0, 0, 1 }
                     }),
                 MeasurementFunction = new Matrix(
-                    new double[,] {
-                    { 1, 0, 0, 0, 1, 0, 0 },
-                    { 0, 1, 0, 0, 0, 1, 0 },
-                    { 0, 0, 1, 0, 0, 0, 1 },
-                    { 0, 0, 0, 1, 0, 0, 0 },
-                    { 0, 0, 0, 0, 0, 0, 0 },
-                    { 0, 0, 0, 0, 0, 0, 0 },
-                    { 0, 0, 0, 0, 0, 0, 0 }
+                    new double[,]
+                    {
+                        { 1, 0, 0, 0, 1, 0, 0 },
+                        { 0, 1, 0, 0, 0, 1, 0 },
+                        { 0, 0, 1, 0, 0, 0, 1 },
+                        { 0, 0, 0, 1, 0, 0, 0 },
+                        { 0, 0, 0, 0, 0, 0, 0 },
+                        { 0, 0, 0, 0, 0, 0, 0 },
+                        { 0, 0, 0, 0, 0, 0, 0 }
                     }),
                 StateUncertainty = new Matrix(
-                    new double[,] {
-                    { 1, 0, 0, 0, 0, 0, 0 },
-                    { 0, 1, 0, 0, 0, 0, 0 },
-                    { 0, 0, 10, 0, 0, 0, 0 },
-                    { 0, 0, 0, 10, 0, 0, 0 },
-                    { 0, 0, 0, 0, 10000, 0, 0 },
-                    { 0, 0, 0, 0, 0, 10000, 0 },
-                    { 0, 0, 0, 0, 0, 0, 10000 }
+                    new double[,]
+                    {
+                        { 1, 0, 0, 0, 0, 0, 0 },
+                        { 0, 1, 0, 0, 0, 0, 0 },
+                        { 0, 0, 10, 0, 0, 0, 0 },
+                        { 0, 0, 0, 10, 0, 0, 0 },
+                        { 0, 0, 0, 0, 10000, 0, 0 },
+                        { 0, 0, 0, 0, 0, 10000, 0 },
+                        { 0, 0, 0, 0, 0, 0, 10000 }
                     }),
                 ProcessUncertainty = new Matrix(
-                    new double[,] {
-                    { 1, 0, 0, 0, 0, 0, 0 },
-                    { 0, 1, 0, 0, 0, 0, 0 },
-                    { 0, 0, 1, 0, 0, 0, 0 },
-                    { 0, 0, 0, 1, 0, 0, 0 },
-                    { 0, 0, 0, 0, .01, 0, 0 },
-                    { 0, 0, 0, 0, 0, .01, 0 },
-                    { 0, 0, 0, 0, 0, 0, .001 }
+                    new double[,]
+                    {
+                        { 1, 0, 0, 0, 0, 0, 0 },
+                        { 0, 1, 0, 0, 0, 0, 0 },
+                        { 0, 0, 1, 0, 0, 0, 0 },
+                        { 0, 0, 0, 1, 0, 0, 0 },
+                        { 0, 0, 0, 0, .01, 0, 0 },
+                        { 0, 0, 0, 0, 0, .01, 0 },
+                        { 0, 0, 0, 0, 0, 0, .001 }
                     }),
                 UncertaintyCovariances = Matrix.Identity(7) * 10,
                 CurrentState = ToMeasurement(box).Append(0, 0, 0)
@@ -66,6 +70,7 @@ namespace SortCS.Kalman
 
             _originalId = box.Class;
         }
+
         public int Id { get; }
 
         public void Update(BoundingBox box)
@@ -117,10 +122,10 @@ namespace SortCS.Kalman
             return new BoundingBox(
                 0,
                 string.Empty,
-                (float)(currentState[0] - w / 2),
-                (float)(currentState[1] - h / 2),
-                (float)(currentState[0] + w / 2),
-                (float)(currentState[1] + h / 2),
+                (float)(currentState[0] - (w / 2)),
+                (float)(currentState[1] - (h / 2)),
+                (float)(currentState[0] + (w / 2)),
+                (float)(currentState[1] + (h / 2)),
                 0);
         }
     }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -119,7 +119,7 @@ namespace SortCS
                 {
                     var tracks = result.Select(x => $"{x.TrackId}{(x.State == TrackState.Active ? null : $": {x.State}")}");
 
-                    Console.WriteLine($"Tracks: [{string.Join(',', tracks)}], Longest: {longest}, Ended: {ended}");
+                    Console.WriteLine($"Tracks: [{string.Join(",", tracks)}], Longest: {longest}, Ended: {ended}");
                 }
             }
 

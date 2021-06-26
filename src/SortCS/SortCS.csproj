@@ -1,10 +1,38 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup> 
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0; net5.0</TargetFrameworks>
+    <LangVersion>preview</LangVersion>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors> 
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>Kees Schollaart, Maarten van Sambeek</Authors>
+    <Company>Vision Intelligence</Company>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <AssemblyVersion>0.9.0.0</AssemblyVersion>
+    <FileVersion>0.9.0.0</FileVersion>
+    <Version>0.9.0.0</Version>
+    <Product>SortCS</Product>
+    <Summary>SortCS is a 'Multiple Object Tracker'.</Summary>
+    <Description>SortCS is a 'Multiple Object Tracker'</Description>
+    <PackageTags>Object, Tracking, Multiple, AI, Computer Vision, Vision</PackageTags>
+    <PackageReleaseNotes>- Symbols package added to NuGet package.</PackageReleaseNotes>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <RepositoryType>Github</RepositoryType>
+    <RepositoryUrl>https://github.com/keesschollaart81/SortCS.git</RepositoryUrl>
+    <PackageLicenseUrl></PackageLicenseUrl>
+    <NeutralLanguage>en</NeutralLanguage>
+    <PackageProjectUrl>https://github.com/keesschollaart81/SortCS</PackageProjectUrl>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
+  
   <ItemGroup>
     <PackageReference Include="HungarianAlgorithm" Version="2.2.8" />
     <PackageReference Include="System.Drawing.Common" Version="5.0.0" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
   </ItemGroup>
+
+  <Import Project="../../analyzers.targets" />
+
 </Project>

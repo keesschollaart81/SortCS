@@ -6,7 +6,6 @@ namespace SortCS
     {
         public BoundingBox()
         {
-
         }
 
         public BoundingBox(int classIx, string className, float tly, float tlx, float w, float h, float score)

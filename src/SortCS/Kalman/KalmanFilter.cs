@@ -2,7 +2,7 @@ using System;
 
 namespace SortCS.Kalman
 {
-    class KalmanFilter
+    internal class KalmanFilter
     {
         private readonly int _stateSize;
         private readonly int _measurementSize;
@@ -32,7 +32,7 @@ namespace SortCS.Kalman
         }
 
         /// <summary>
-        /// Gets the current state.
+        /// Gets or sets the current state.
         /// </summary>
         public Vector CurrentState
         {
@@ -113,15 +113,15 @@ namespace SortCS.Kalman
 
             var y = measurement - measurementFunction.Dot(CurrentState);
             var pht = UncertaintyCovariances * measurementFunction.Transposed;
-            var S = measurementFunction * pht + measurementNoise;
+            var S = (measurementFunction * pht) + measurementNoise;
             var SI = S.Inverted;
             var K = pht * SI;
 
             _currentState += K.Dot(y);
 
-            var I_KH = _identity - K * measurementFunction;
+            var I_KH = _identity - (K * measurementFunction);
 
-            _uncertaintyCovariances = I_KH * UncertaintyCovariances * I_KH.Transposed + K * measurementNoise * K.Transposed;
+            _uncertaintyCovariances = (I_KH * UncertaintyCovariances * I_KH.Transposed) + (K * measurementNoise * K.Transposed);
         }
     }
 }

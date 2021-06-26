@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace SortCS.Kalman
 {
-    public class Matrix
+    internal class Matrix
     {
         private readonly double[,] _values;
 
@@ -15,27 +15,59 @@ namespace SortCS.Kalman
             Columns = _values.GetLength(1);
         }
 
-        public Matrix(int rows, int columns) : this(new double[rows, columns])
+        public Matrix(int rows, int columns)
+            : this(new double[rows, columns])
         {
-        }
-
-        public static Matrix Identity(int size)
-        {
-            var identity = new double[size, size];
-
-            for (var row = 0; row < size; row++)
-            {
-                for (var col = 0; col < size; col++)
-                {
-                    identity[row, col] = row == col ? 1.0d : 0d;
-                }
-            }
-
-            return new Matrix(identity);
         }
 
         public int Rows { get; }
+
         public int Columns { get; }
+
+        public Matrix Transposed
+        {
+            get
+            {
+                var result = new double[Columns, Rows];
+
+                for (var row = 0; row < Rows; row++)
+                {
+                    for (var col = 0; col < Columns; col++)
+                    {
+                        result[col, row] = _values[row, col];
+                    }
+                }
+
+                return new Matrix(result);
+            }
+        }
+
+        public Matrix Inverted
+        {
+            get
+            {
+                Debug.Assert(Rows == Columns, "Matrix must be square.");
+
+                var (lu, indices, d) = GetDecomposition();
+                var result = new double[Rows, Columns];
+
+                for (var col = 0; col < Columns; col++)
+                {
+                    var column = new double[Columns];
+
+                    column[col] = 1.0d;
+
+                    var x = BackSubstition(lu, indices, column);
+
+                    for (var row = 0; row < Rows; row++)
+                    {
+                        result[row, col] = x[row];
+                    }
+                }
+
+                return new Matrix(result);
+            }
+        }
 
         public static Matrix operator +(Matrix first, Matrix second)
         {
@@ -91,18 +123,6 @@ namespace SortCS.Kalman
             return scalar * matrix;
         }
 
-        public override string ToString()
-        {
-            return $"|{string.Join("|", Enumerable.Range(0, Rows).Select(row => $" {Row(row):###0.##} "))}|";
-        }
-
-        public Vector Dot(Vector vector)
-        {
-            Debug.Assert(Columns == vector.Length, "Matrix should have the same number of columns as the vector has rows.");
-
-            return new Vector(Enumerable.Range(0, Rows).Select(Row).Select(row => row.Dot(vector)).ToArray());
-        }
-
         public static Matrix operator *(Matrix first, Matrix second)
         {
             var result = new double[first.Rows, second.Columns];
@@ -120,6 +140,33 @@ namespace SortCS.Kalman
             return new Matrix(result);
         }
 
+        public static Matrix Identity(int size)
+        {
+            var identity = new double[size, size];
+
+            for (var row = 0; row < size; row++)
+            {
+                for (var col = 0; col < size; col++)
+                {
+                    identity[row, col] = row == col ? 1.0d : 0d;
+                }
+            }
+
+            return new Matrix(identity);
+        }
+
+        public override string ToString()
+        {
+            return $"|{string.Join("|", Enumerable.Range(0, Rows).Select(row => $" {Row(row):###0.##} "))}|";
+        }
+
+        public Vector Dot(Vector vector)
+        {
+            Debug.Assert(Columns == vector.Length, "Matrix should have the same number of columns as the vector has rows.");
+
+            return new Vector(Enumerable.Range(0, Rows).Select(Row).Select(row => row.Dot(vector)).ToArray());
+        }
+
         public Vector Row(int index)
         {
             Debug.Assert(index <= Rows, "Row index out of range.");
@@ -130,52 +177,6 @@ namespace SortCS.Kalman
         {
             Debug.Assert(index <= Columns, "Column index out of range.");
             return new Vector(Enumerable.Range(0, Rows).Select(row => _values[row, index]).ToArray());
-        }
-
-        public Matrix Transposed
-        {
-            get
-            {
-                var result = new double[Columns, Rows];
-
-                for (var row = 0; row < Rows; row++)
-                {
-                    for (var col = 0; col < Columns; col++)
-                    {
-                        result[col, row] = _values[row, col];
-                    }
-                }
-
-                return new Matrix(result);
-            }
-        }
-
-        public Matrix Inverted
-        {
-            get
-            {
-                Debug.Assert(Rows == Columns, "Matrix must be square.");
-
-                var (lu, indices, d) = GetDecomposition();
-                var result = new double[Rows, Columns];
-
-
-                for (var col = 0; col < Columns; col++)
-                {
-                    var column = new double[Columns];
-
-                    column[col] = 1.0d;
-
-                    var x = BackSubstition(lu, indices, column);
-
-                    for (var row = 0; row < Rows; row++)
-                    {
-                        result[row, col] = x[row];
-                    }
-                }
-
-                return new Matrix(result);
-            }
         }
 
         private double[] BackSubstition(double[,] lu, int[] indices, double[] b)

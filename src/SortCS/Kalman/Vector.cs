@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace SortCS.Kalman
 {
-    public class Vector
+    internal class Vector
     {
         private readonly double[] _values;
 
@@ -22,14 +22,6 @@ namespace SortCS.Kalman
 
         public double this[int index] => _values[index];
 
-        public double Dot(Vector other)
-        {
-            Debug.Assert(_values.Length == other._values.Length, "Vectors should be of equal length.");
-            Debug.Assert(_values.Length > 0, "Vectors must have at least one element.");
-
-            return _values.Zip(other._values, (a, b) => a * b).Sum();
-        }
-
         public static Vector operator -(Vector first, Vector second)
         {
             Debug.Assert(first.Length == second.Length, "Vectors should be of equal size");
@@ -40,6 +32,14 @@ namespace SortCS.Kalman
         {
             Debug.Assert(first.Length == second.Length, "Vectors should be of equal size");
             return new Vector(first._values.Zip(second._values, (a, b) => a + b).ToArray());
+        }
+
+        public double Dot(Vector other)
+        {
+            Debug.Assert(_values.Length == other._values.Length, "Vectors should be of equal length.");
+            Debug.Assert(_values.Length > 0, "Vectors must have at least one element.");
+
+            return _values.Zip(other._values, (a, b) => a * b).Sum();
         }
 
         public override string ToString()

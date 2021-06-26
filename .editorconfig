@@ -8,3 +8,36 @@ dotnet_naming_symbols.private_fields.applicable_accessibilities = private
 
 dotnet_naming_style.prefix_underscore.capitalization = camel_case
 dotnet_naming_style.prefix_underscore.required_prefix = _
+
+[*.cs]
+dotnet_diagnostic.sa1413.severity = none # SA1413: Use trailing comma in multi-line initializers
+dotnet_diagnostic.ca1303.severity = none # CA1303: Do not pass literals as localized parameters
+dotnet_diagnostic.sa1633.severity = none # SA1633: File should have heade
+dotnet_diagnostic.sa1200.severity = none # SA1200: Using directives should be placed correctly
+dotnet_diagnostic.sa1117.severity = none # SA1117: Parameters should be on same line or separate lines
+dotnet_diagnostic.sa1101.severity = none # SA1101: Prefix local calls with this
+dotnet_diagnostic.ca2007.severity = none # CA2007: Consider calling ConfigureAwait on the awaited task
+dotnet_diagnostic.ca1716.severity = none # CA1716: Identifiers should not match keywords
+dotnet_diagnostic.ca1308.severity = none # CA1308: Normalize strings to uppercase
+dotnet_diagnostic.sa1309.severity = none # SA1309: Field names should not begin with underscore
+dotnet_diagnostic.IDE0060.severity = none # IDE0060: Remove unused parameter
+dotnet_diagnostic.S1172.severity = none # S1172: Remove this unused method parameter 
+dotnet_diagnostic.S4200.severity = none # S4200: Make this wrapper for native method less trivial
+dotnet_diagnostic.SA1601.severity = none # SA1601: Partial elements should be documented
+dotnet_diagnostic.SA1611.severity = none # SA1611: Element parameters should be documented 
+dotnet_diagnostic.SA1604.severity = none # SA1600: Elements Element documentation should have summary
+dotnet_diagnostic.SA1602.severity = none # SA1602: Enumeration items should be documented
+dotnet_diagnostic.SA1600.severity = none # SA1600: Elements should be documented
+dotnet_diagnostic.S112.severity = none # S112: 'System.Exception' should not be thrown by user code
+dotnet_diagnostic.CS1573.severity = none 
+dotnet_diagnostic.CS1591.severity = none 
+dotnet_diagnostic.CS1712.severity = none
+ 
+
+max_line_length=140
+
+dotnet_diagnostic.SA1202.severity = suggestion # SA1202: 'public' members should come before 'protected' members
+dotnet_diagnostic.S1135.severity = suggestion # S1135: Complete the task associated to this 'TODO' comment
+dotnet_diagnostic.SA1515.severity = suggestion # SA1515: Single-line comment should be preceded by blank line
+dotnet_diagnostic.S125.severity = suggestion # S125: Remove this commented out code.
+dotnet_diagnostic.S3925.severity = suggestion # S3925: Update this implementation of 'ISerializable' to conform to the recommended serialization pattern.
