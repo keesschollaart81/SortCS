@@ -1,18 +1,6 @@
 {
     "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "SortCS",
-            "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "build",
-            "program": "${workspaceFolder}/src/SortCS/bin/Debug/net5.0/SortCS.dll",
-            "args": [],
-            "cwd": "${workspaceFolder}/src/SortCS",
-            "stopAtEntry": false,
-            "console": "internalConsole",
-            "requireExactSource": false
-        },
+    "configurations": [ 
         {
             // Use IntelliSense to find out which attributes exist for C# debugging
             // Use hover for the description of the existing attributes
@@ -24,7 +12,7 @@
             // If you have changed target frameworks, make sure to update the program path.
             "program": "${workspaceFolder}/src/SortCS.Evaluate/bin/Debug/net5.0/SortCS.Evaluate.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/src/SortCS.Evaluate",
+            "cwd": "${workspaceFolder}/src/SortCS.Evaluate/bin/Debug/net5.0/",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
             "console": "internalConsole",
             "stopAtEntry": false

@@ -35,10 +35,6 @@ namespace SortCS
                 foreach (var box in boxesCopy.Where(x => x.Class == track.Class))
                 {
                     var distance = GetDistance(lastBoxForTrack.Center, box.Center);
-                    //if (distance > 0.3)
-                    //{
-                    //    continue;
-                    //}
 
                     var foundCloserBoxInOtherTrack = FindCloserBoxInRemainingTracks(box, distance, tracksAppendedThisFrame);
                     if (foundCloserBoxInOtherTrack)
