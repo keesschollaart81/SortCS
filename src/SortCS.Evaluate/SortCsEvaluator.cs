@@ -76,7 +76,7 @@ namespace SortCS.Evaluate
             Console.WriteLine(path);
             using var file = new StreamWriter(path, false);
 
-            var tracker = new SortTracker();
+            ITracker tracker = new SimpleBoxTracker(); // or SortTracker
             foreach (var frame in frames)
             {
                 var tracks = tracker.Track(frame.Value);
