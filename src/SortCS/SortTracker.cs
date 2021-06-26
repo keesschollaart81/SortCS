@@ -4,7 +4,7 @@ using System.Linq;
 using SortCS.Kalman;
 using HungarianAlgorithm;
 
-namespace sortcs
+namespace SortCS
 {
     public class SortTracker : ITracker
     {
@@ -32,7 +32,7 @@ namespace sortcs
             {
                 var box = tracker.Predict();
 
-                if (box.IsInvalid)
+                if (box.Box.IsEmpty) // todo @ Maarten... Ik heb dit omgegooid naar the IsEmpty property van de RectangleF. Werkt dit nu nog??
                 {
                     toDelete.Add(tracker);
                 }

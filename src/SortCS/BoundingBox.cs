@@ -1,21 +1,20 @@
 using System.Drawing;
-using System.Linq;
 
-namespace sortcs
+namespace SortCS
 {
-    public class BoundingBox
+    public record BoundingBox
     {
         public BoundingBox()
         {
 
         }
+
         public BoundingBox(int classIx, string className, float tly, float tlx, float w, float h, float score)
         {
             Class = classIx;
             ClassName = className;
             Box = new RectangleF(tlx, tly, w, h);
             Score = score;
-            IsInvalid = Box.IsEmpty;
         }
 
         public RectangleF Box { get; set; }
@@ -33,6 +32,5 @@ namespace sortcs
         public string ClassName { get; set; }
 
         public float Score { get; set; }
-        public bool IsInvalid { get; }
     }
 }

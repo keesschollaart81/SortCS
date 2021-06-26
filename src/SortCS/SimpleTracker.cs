@@ -1,17 +1,16 @@
-
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 
-namespace sortcs
+namespace SortCS
 {
     public class SimpleBoxTracker : ITracker
     {
         private readonly int _maxTrackLength;
         private readonly int _endTrackAfterNMisses;
         private readonly double _minFirstBoxScore;
-        private int trackIndex = 0;
+        private int trackIndex = 1;
 
         public SimpleBoxTracker(int maxGap = 4)
         {
@@ -36,10 +35,10 @@ namespace sortcs
                 foreach (var box in boxesCopy.Where(x => x.Class == track.Class))
                 {
                     var distance = GetDistance(lastBoxForTrack.Center, box.Center);
-                    if (distance > 0.3)
-                    {
-                        continue;
-                    }
+                    //if (distance > 0.3)
+                    //{
+                    //    continue;
+                    //}
 
                     var foundCloserBoxInOtherTrack = FindCloserBoxInRemainingTracks(box, distance, tracksAppendedThisFrame);
                     if (foundCloserBoxInOtherTrack)
@@ -82,7 +81,7 @@ namespace sortcs
                 {
                     track.State = TrackState.Ended;
                 }
-                else if (track.History.Count == 1)
+                else if (track.History.Count == 1 && track.Misses == 0)
                 {
                     track.State = TrackState.Started;
                 }
@@ -120,7 +119,7 @@ namespace sortcs
                 {
                     var tracks = result.Select(x => $"{x.TrackId}{(x.State == TrackState.Active ? null : $": {x.State}")}");
 
-                    Console.WriteLine($"Tracks: [{string.Join(',',tracks)}], Longest: {longest}, Ended: {ended}");
+                    Console.WriteLine($"Tracks: [{string.Join(',', tracks)}], Longest: {longest}, Ended: {ended}");
                 }
             }
 

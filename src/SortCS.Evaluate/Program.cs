@@ -17,12 +17,12 @@ namespace SortCS.Evaluate
             {
                 new Option<DirectoryInfo>(
                     "--data-folder",
-                    getDefaultValue: () => new DirectoryInfo(@"../../../TrackEval/data"),
+                    getDefaultValue: () => new DirectoryInfo(@"../../../../../../TrackEval/data"), // Sssuming SortCS/src/SortCS.Evaluate/bin/debug/net5.0 is working directory 
                     description: "Location where data is stored using this format: https://github.com/JonathonLuiten/TrackEval/blob/master/docs/MOTChallenge-format.txt"),
                 new Option<string>(
                     "--benchmark",
-                    getDefaultValue: () => "MOT20",
-                    description: "Name of the benchmark, e.g. MOT15, MO16, MOT17 or MOT20 (default : MOT17)"),
+                    getDefaultValue: () => "MOT15",
+                    description: "Name of the benchmark, e.g. MOT15, MO16, MOT17 or MOT20 (default : MOT15)"),
                 new Option<string>(
                     "--split-to-eval",
                     getDefaultValue: () => "train",
@@ -48,6 +48,7 @@ namespace SortCS.Evaluate
             var dataZipUrl = "https://omnomnom.vision.rwth-aachen.de/data/TrackEval/data.zip";
             groundTruthFolder.Create();
             var targetZipFile = Path.Combine(groundTruthFolder.ToString(), "..", "data.zip");
+            Console.WriteLine(Path.GetFullPath(targetZipFile));
 
             Console.WriteLine($"Downloading data.zip (150mb) from {dataZipUrl} to {targetZipFile}");
             using var httpClient = new HttpClient();

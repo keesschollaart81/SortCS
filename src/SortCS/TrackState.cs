@@ -1,4 +1,4 @@
-namespace sortcs
+namespace SortCS
 {
     public enum TrackState
     {

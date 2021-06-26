@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace sortcs
+namespace SortCS
 {
     public interface ITracker
     {

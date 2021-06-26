@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 
-namespace sortcs
+namespace SortCS
 {
-    public class Track
+    public record Track
     {
         public int TrackId { get; set; }
 
