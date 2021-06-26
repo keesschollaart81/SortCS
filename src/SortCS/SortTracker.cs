@@ -1,7 +1,8 @@
-using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using SortCS.Kalman;
+using HungarianAlgorithm;
 
 namespace sortcs
 {
@@ -24,6 +25,8 @@ namespace sortcs
         {
             _frameCount++;
 
+
+
             var toDelete = new List<KalmanBoxTracker>();
             var trackedBoxes = new List<BoundingBox>();
 
@@ -42,16 +45,30 @@ namespace sortcs
             }
 
             _trackers.RemoveAll(t => toDelete.Contains(t));
-
+            
+            MatchDetectionsWithTrackers(boxes.ToArray(), trackedBoxes);
             yield break;
         }
-
-        public void MatchDetectionsWithTrackers(
-            IEnumerable<BoundingBox> boxes,
-            IEnumerable<BoundingBox> trackers)
+        
+        private void MatchDetectionsWithTrackers(
+            ICollection<BoundingBox> boxes,
+            ICollection<BoundingBox> trackers)
         {
-            if ()
-            // todo: port from sort.py
+            var matrix = trackers.SelectMany((tracker) => boxes.Select((box) =>
+            {
+                var intersection = RectangleF.Intersect(box.Box, tracker.Box);
+                var union = RectangleF.Union(box.Box, tracker.Box);
+                var intersectionArea = (double) (intersection.Width * intersection.Height);
+                var unionArea = (double) (union.Width * union.Height);
+
+                var iou = unionArea < double.Epsilon ? 0 : intersectionArea / unionArea;
+
+                return (int)((1-iou) * 100); // int costs?
+            })).ToArray(boxes.Count, trackers.Count);
+            
+            var matched = matrix.FindAssignments();
+
+            var unmatched = boxes.Where((b, index) => !matched.Contains(index));
         }
 
 
@@ -92,31 +109,23 @@ namespace sortcs
         //     matches = np.concatenate(matches,axis=0)
 
         //   return matches, np.array(unmatched_detections), np.array(unmatched_trackers)
+    }
 
+    public static class EnumerableExtensions
+    {
 
-
-
-        private float IntersectionOverUnion(RectangleF boundingBoxA, RectangleF boundingBoxB)
+        public static T[,] ToArray<T>(this IEnumerable<T> source, int firstDimensionLength, int secondDimensionLength)
         {
-            var areaA = boundingBoxA.Width * boundingBoxA.Height;
+            var array = source.ToArray();
+            var result = new T[firstDimensionLength, secondDimensionLength];
 
-            if (areaA <= 0)
-                return 0;
+            for (var i = 0; i < array.Length; i++)
+            {
+                result[i / secondDimensionLength, i % secondDimensionLength] = array[i];
+            }
 
-            var areaB = boundingBoxB.Width * boundingBoxB.Height;
-
-            if (areaB <= 0)
-                return 0;
-
-            var minX = Math.Max(boundingBoxA.Left, boundingBoxB.Left);
-            var minY = Math.Max(boundingBoxA.Top, boundingBoxB.Top);
-            var maxX = Math.Min(boundingBoxA.Right, boundingBoxB.Right);
-            var maxY = Math.Min(boundingBoxA.Bottom, boundingBoxB.Bottom);
-
-            var intersectionArea = Math.Max(maxY - minY, 0) * Math.Max(maxX - minX, 0);
-
-            return intersectionArea / (areaA + areaB - intersectionArea);
-        }
+            return result;
+        } 
     }
 
 }

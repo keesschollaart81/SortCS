@@ -86,7 +86,7 @@ namespace SortCS.Evaluate
                     {
                         var lastBox = track.History.Last();
                         //<frame>, <id>, <bb_left>, <bb_top>, <bb_width>, <bb_height>, <conf>, <x>, <y>, <z>
-                        var line = $"{frame.Key},{track.TrackId},{lastBox.Box[0]},{lastBox.Box[1]},{lastBox.Box[2]},{lastBox.Box[3]},1,-1,-1,-1";
+                        var line = $"{frame.Key},{track.TrackId},{lastBox.Box.Left},{lastBox.Box.Top},{lastBox.Box.Width},{lastBox.Box.Height},1,-1,-1,-1";
                         await file.WriteLineAsync(line);
                     }
                 }
