@@ -107,9 +107,9 @@ namespace SortCS.Tests
             // Assert
             Assert.AreEqual(TrackState.Ended, complexTrack1.State);
             Assert.AreEqual(TrackState.Ended, complexTrack2.State);
-            Assert.AreEqual(0.7, firstBoxOfTrack2.Box.Top);
+            Assert.AreEqual(0.7, lastBoxOfTrack2.Box.Top, 0.001);
             // Assert.AreEqual(0.1, lastBoxOfTrack2.Box.Left); // todo: uncomment for sort!
-            Assert.AreEqual(4, complexTrack1.History.Count);
+            Assert.AreEqual(5, complexTrack1.History.Count);
         }
     }
 }
