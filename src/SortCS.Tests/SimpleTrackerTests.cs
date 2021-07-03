@@ -65,23 +65,25 @@ namespace SortCS.Tests
             var crossingTrack = new List<Frame>{
                 new Frame(new List<BoundingBox>()),
                 new Frame(new List<BoundingBox>{
-                    new BoundingBox(1, "person", 0.1f, 0.1f, 0.1f, 0.1f, 1),
-                    new BoundingBox(1, "person", 0.8f, 0.3f, 0.1f, 0.1f, 1)
+                    new BoundingBox(1, "person", 0.8f, 0.3f, 0.1f, 0.1f, 1),
+                    new BoundingBox(1, "person", 0.8f, 0.8f, 0.15f, 0.15f, 1),
+                    new BoundingBox(1, "person", 0.1f, 0.1f, 0.15f, 0.15f, 1)
                 }),
                 new Frame(new List<BoundingBox>{
-                    new BoundingBox(1, "person", 0.3f, 0.3f, 0.1f, 0.1f, 1),
-                    new BoundingBox(1, "person", 0.6f, 0.35f, 0.1f, 0.1f, 1)
+                    new BoundingBox(1, "person", 0.6f, 0.35f, 0.1f, 0.1f, 1),
+                      new BoundingBox(1, "person", 0.9f, 0.9f, 0.15f, 0.15f, 1),
+                  new BoundingBox(1, "person", 0.2f, 0.2f, 0.15f, 0.15f, 1)
                 }),
                 new Frame(new List<BoundingBox>{
-                    new BoundingBox(1, "person", 0.45f, 0.45f, 0.1f, 0.1f, 1),
+                    new BoundingBox(1, "person", 0.3f, 0.3f, 0.15f, 0.15f, 1),
                     new BoundingBox(1, "person", 0.4f, 0.4f, 0.1f, 0.1f, 1)
                 }),
                 new Frame(new List<BoundingBox>{
-                    new BoundingBox(1, "person", 0.6f, 0.6f, 0.1f, 0.1f, 1),
+                    new BoundingBox(1, "person", 0.4f, 0.4f, 0.15f, 0.15f, 1),
                     new BoundingBox(1, "person", 0.25f, 0.45f, 0.1f, 0.1f, 1)
                 }),
                 new Frame(new List<BoundingBox>{
-                    new BoundingBox(1, "person", 0.7f, 0.7f, 0.1f, 0.1f, 1),
+                    new BoundingBox(1, "person", 0.5f, 0.5f, 0.15f, 0.15f, 1),
                     new BoundingBox(1, "person", 0.1f, 0.5f, 0.1f, 0.1f, 1)
                 }),
                 new Frame(new List<BoundingBox>()),
@@ -92,12 +94,12 @@ namespace SortCS.Tests
             };
             var tracks = Enumerable.Empty<Track>();
 
-            var sut = new SimpleBoxTracker();
+            var sut = new SortTracker();
 
             // Act
             foreach (var frame in crossingTrack)
             {
-                tracks = sut.Track(frame.BoundingBoxes);
+                tracks = sut.Track(frame.BoundingBoxes).ToArray();
             }
 
             var complexTrack1 = tracks.ElementAt(0);

@@ -70,7 +70,7 @@ namespace SortCS.Evaluate
                         frames.Add(frameId, new List<BoundingBox>());
                     }
 
-                    frames[frameId].Add(new BoundingBox(0, "", bbTop, bbLeft, bbTop + bbHeight, bbLeft + bbWidth, 1));
+                    frames[frameId].Add(new BoundingBox(0, "", bbTop, bbLeft, bbHeight, bbWidth, 1));
                 }
 
                 Console.WriteLine($"{frames.Count}");

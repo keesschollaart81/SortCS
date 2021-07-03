@@ -75,6 +75,7 @@ namespace SortCS.Kalman
         }
 
         public int Id { get; }
+        public BoundingBox LastBoundingBox { get; private set; }
 
         public void Update(BoundingBox box)
         {
@@ -84,6 +85,7 @@ namespace SortCS.Kalman
             _hitStreak++;
             _originalId = box.Class;
             _filter.Update(ToMeasurement(box));
+            LastBoundingBox = box;
         }
 
         public BoundingBox Predict()
@@ -125,10 +127,10 @@ namespace SortCS.Kalman
             return new BoundingBox(
                 0,
                 string.Empty,
-                (float)(currentState[0] - (w / 2)),
-                (float)(currentState[1] - (h / 2)),
-                (float)(currentState[0] + (w / 2)),
-                (float)(currentState[1] + (h / 2)),
+                (float)(currentState[0] - (h / 2)),
+                (float)(currentState[1] - (w / 2)),
+                (float)(w),
+                (float)(h),
                 0);
         }
     }

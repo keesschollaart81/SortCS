@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Linq;
 using HungarianAlgorithm;
@@ -35,7 +36,7 @@ namespace SortCS
             {
                 var box = tracker.Predict();
 
-                if (box.Box.IsEmpty) // todo @ Maarten... Ik heb dit omgegooid naar the IsEmpty property van de RectangleF. Werkt dit nu nog??
+                if (box.Box.IsEmpty)
                 {
                     toDelete.Add(tracker);
                 }
@@ -47,17 +48,42 @@ namespace SortCS
 
             _trackers.RemoveAll(t => toDelete.Contains(t));
 
-            MatchDetectionsWithTrackers(boxes.ToArray(), trackedBoxes);
+            var boxesArray = boxes.ToArray();
 
-            // todo: return result.
-            yield break;
+            var (matchedBoxes, unmatchedBoxes) = MatchDetectionsWithTrackers(boxesArray, trackedBoxes);
+
+            foreach (var item in matchedBoxes)
+            {
+                _trackers[item.Key].Update(item.Value);
+            }
+
+            foreach (var unmatchedBox in unmatchedBoxes)
+            {
+                _trackers.Add(new KalmanBoxTracker(unmatchedBox));
+            }
+
+            return _trackers.Select(x => new SortCS.Track
+            {
+                State = TrackState.Active,
+                TrackId = x.Id,
+                History = new List<BoundingBox> { x.LastBoundingBox },
+                Class = 0,
+                ClassName = "",
+                Misses = 0,
+                TotalMisses = 0
+            });
         }
 
-        private void MatchDetectionsWithTrackers(
+        private (Dictionary<int, BoundingBox> Matched, ICollection<BoundingBox> Unmatched) MatchDetectionsWithTrackers(
             ICollection<BoundingBox> boxes,
             ICollection<BoundingBox> trackers)
         {
-            var matrix = trackers.SelectMany((tracker) => boxes.Select((box) =>
+            if (trackers.Count == 0)
+            {
+                return (new(), boxes);
+            }
+
+            var ious = trackers.SelectMany((tracker) => boxes.Select((box) =>
             {
                 var intersection = RectangleF.Intersect(box.Box, tracker.Box);
                 var union = RectangleF.Union(box.Box, tracker.Box);
@@ -67,64 +93,47 @@ namespace SortCS
                 var iou = unionArea < double.Epsilon ? 0 : intersectionArea / unionArea;
 
                 return (int)((1 - iou) * 100); // int costs?
-            })).ToArray(boxes.Count, trackers.Count);
+            }));
+            var matrix = ious.ToArray(boxes.Count, trackers.Count);
+            var matrix2 = ious.ToArray(boxes.Count, trackers.Count);
 
-            if (trackers.Count == 0)
+            var matchedBoxIndices = matrix.FindAssignments();
+
+            // here we filter the matches that did not have a cost of 100
+            // todo: filter before `FindAssignments()` so that all matches with a cost of 100 are ignored / not part of the computation
+            var matchedBoxIndicesWithOverlap = matchedBoxIndices.ToDictionary(x => x, boxIx =>
             {
-                foreach (var box in boxes)
+                for (var trackIx = 0; trackIx < matrix2.GetLength(0); trackIx++)
                 {
-                    _trackers.Add(new KalmanBoxTracker(box));
+                    if (matrix2[trackIx, boxIx] < 100)
+                    {
+                        return (int?)trackIx;
+                    }
                 }
 
-                return;
-            }
+                return null;
+            });
 
-            var matched = matrix.FindAssignments();
-            for (var i = 0; i < matched.Length; i++)
+            var matchedBoxes = new Dictionary<int, BoundingBox>();
+            for (var bi = 0; bi < boxes.Count; bi++)
             {
-                _trackers[i].Update(boxes.ElementAt(matched[i]));
+                if (!matchedBoxIndicesWithOverlap.ContainsKey(bi))
+                {
+                    continue;
+                }
+
+                var trackId = matchedBoxIndicesWithOverlap[bi];
+                if (trackId.HasValue)
+                {
+                    matchedBoxes.Add(trackId.Value, boxes.ElementAt(bi));
+                }
             }
 
-            var unmatched = boxes.Where((b, index) => !matched.Contains(index));
-            // todo remove stale trackers
-        }
+            var unmatched = boxes
+                .Where((b, index) => !matchedBoxIndicesWithOverlap.ContainsKey(index) || !matchedBoxIndicesWithOverlap[index].HasValue)
+                .ToList();
 
-        // if(len(trackers)==0):
-        //     return np.empty((0,2),dtype=int), np.arange(len(detections)), np.empty((0,5),dtype=int)
-        //
-        //   iou_matrix = iou_batch(detections, trackers)
-        //
-        //   if min(iou_matrix.shape) > 0:
-        //     a = (iou_matrix > iou_threshold).astype(np.int32)
-        //     if a.sum(1).max() == 1 and a.sum(0).max() == 1:
-        //         matched_indices = np.stack(np.where(a), axis=1)
-        //     else:
-        //       matched_indices = linear_assignment(-iou_matrix)
-        //   else:
-        //     matched_indices = np.empty(shape=(0,2))
-        //
-        //   unmatched_detections = []
-        //   for d, det in enumerate(detections):
-        //     if(d not in matched_indices[:,0]):
-        //       unmatched_detections.append(d)
-        //   unmatched_trackers = []
-        //   for t, trk in enumerate(trackers):
-        //     if(t not in matched_indices[:,1]):
-        //       unmatched_trackers.append(t)
-        //
-        //   #filter out matched with low IOU
-        //   matches = []
-        //   for m in matched_indices:
-        //     if(iou_matrix[m[0], m[1]]<iou_threshold):
-        //       unmatched_detections.append(m[0])
-        //       unmatched_trackers.append(m[1])
-        //     else:
-        //       matches.append(m.reshape(1,2))
-        //   if(len(matches)==0):
-        //     matches = np.empty((0,2),dtype=int)
-        //   else:
-        //     matches = np.concatenate(matches,axis=0)
-        //
-        //   return matches, np.array(unmatched_detections), np.array(unmatched_trackers)
-    }
+            return (matchedBoxes, unmatched);
+        }
+         }
 }
