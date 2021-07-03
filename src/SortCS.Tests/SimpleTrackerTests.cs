@@ -63,28 +63,25 @@ namespace SortCS.Tests
         {
             // Arrange 
             var crossingTrack = new List<Frame>{
-                //new Frame(new List<BoundingBox>()),
                 new Frame(new List<BoundingBox>{
                     new BoundingBox(1, "person", 0.8f, 0.3f, 0.1f, 0.1f, 1),
-                    //new BoundingBox(1, "person", 0.8f, 0.8f, 0.15f, 0.15f, 1),
                     new BoundingBox(1, "person", 0.1f, 0.1f, 0.15f, 0.15f, 1)
                 }),
                 new Frame(new List<BoundingBox>{
-                    new BoundingBox(1, "person", 0.6f, 0.35f, 0.1f, 0.1f, 1),
-                    //new BoundingBox(1, "person", 0.9f, 0.9f, 0.15f, 0.15f, 1),
+                    new BoundingBox(1, "person", 0.8f, 0.35f, 0.1f, 0.1f, 1),
                     new BoundingBox(1, "person", 0.2f, 0.2f, 0.15f, 0.15f, 1)
                 }),
                 new Frame(new List<BoundingBox>{
                     new BoundingBox(1, "person", 0.3f, 0.3f, 0.15f, 0.15f, 1),
-                    new BoundingBox(1, "person", 0.4f, 0.4f, 0.1f, 0.1f, 1)
+                    new BoundingBox(1, "person", 0.8f, 0.4f, 0.1f, 0.1f, 1)
                 }),
                 new Frame(new List<BoundingBox>{
                     new BoundingBox(1, "person", 0.4f, 0.4f, 0.15f, 0.15f, 1),
-                    //new BoundingBox(1, "person", 0.25f, 0.45f, 0.1f, 0.1f, 1)
+                    new BoundingBox(1, "person", 0.8f, 0.45f, 0.1f, 0.1f, 1)
                 }),
                 new Frame(new List<BoundingBox>{
                     new BoundingBox(1, "person", 0.5f, 0.5f, 0.15f, 0.15f, 1),
-                    //new BoundingBox(1, "person", 0.1f, 0.5f, 0.1f, 0.1f, 1)
+                    new BoundingBox(1, "person", 0.8f, 0.5f, 0.1f, 0.1f, 1)
                 }),
                 new Frame(new List<BoundingBox>()),
                 new Frame(new List<BoundingBox>()),
@@ -115,8 +112,37 @@ namespace SortCS.Tests
             Assert.AreEqual(TrackState.Ended, complexTrack1.State);
             Assert.AreEqual(TrackState.Ended, complexTrack2.State);
             Assert.AreEqual(0.5, lastBoxOfTrack2.Box.Top, 0.001);
-            // Assert.AreEqual(0.1, lastBoxOfTrack2.Box.Left); // todo: uncomment for sort!
             Assert.AreEqual(5, complexTrack1.History.Count);
+            Assert.AreEqual(5, complexTrack2.History.Count);
+        }
+
+
+        [TestMethod]
+        public void SimpleTracker_ThisNeverEnds()
+        {
+            // Arrange 
+            var crossingTrack = new List<Frame>{
+                new Frame(new List<BoundingBox>{
+                    new BoundingBox(1, "person", 0.8f, 0.3f, 0.1f, 0.1f, 1),
+                    new BoundingBox(1, "person", 0.1f, 0.1f, 0.15f, 0.15f, 1)
+                }),
+                new Frame(new List<BoundingBox>{
+                    new BoundingBox(1, "person", 0.8f, 0.35f, 0.1f, 0.1f, 1),
+                    new BoundingBox(1, "person", 0.9f, 0.9f, 0.15f, 0.15f, 1),
+                    new BoundingBox(1, "person", 0.2f, 0.2f, 0.15f, 0.15f, 1)
+                }), 
+                new Frame(new List<BoundingBox>())
+            };
+
+            var sut = new SortTracker();
+
+            // Act
+            foreach (var frame in crossingTrack)
+            {
+                var result = sut.Track(frame.BoundingBoxes).ToArray();
+                // for frame 2, we never get here because `matrix.FindAssignments()` gets into a infinite loop
+            }
+
         }
     }
 }

@@ -22,7 +22,7 @@ namespace SortCS
         {
             get
             {
-                return new PointF(Box.Left + (Box.Width / 2f), Box.Top + (Box.Left / 2f));
+                return new PointF(Box.Left + (Box.Width / 2f), Box.Top + (Box.Height / 2f));
             }
         }
 
