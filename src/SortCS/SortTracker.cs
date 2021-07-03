@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Linq;
+using System.Xml.Schema;
 using HungarianAlgorithm;
 using SortCS.Kalman;
 
@@ -10,12 +11,13 @@ namespace SortCS
 {
     public class SortTracker : ITracker
     {
-        private readonly List<KalmanBoxTracker> _trackers;
+        private readonly List<(Track Track, KalmanBoxTracker Tracker)> _trackers;
         private int _frameCount;
+        private int _trackerIndex;
 
         public SortTracker()
         {
-            _trackers = new List<KalmanBoxTracker>();
+            _trackers = new List<(Track, KalmanBoxTracker)>();
             _frameCount = 0;
         }
 
@@ -29,24 +31,13 @@ namespace SortCS
         {
             _frameCount++;
 
-            var toDelete = new List<KalmanBoxTracker>();
             var trackedBoxes = new List<BoundingBox>();
 
             foreach (var tracker in _trackers)
             {
-                var box = tracker.Predict();
-
-                if (box.Box.IsEmpty)
-                {
-                    toDelete.Add(tracker);
-                }
-                else
-                {
-                    trackedBoxes.Add(box);
-                }
+                var box = tracker.Tracker.Predict();
+                trackedBoxes.Add(box);
             }
-
-            _trackers.RemoveAll(t => toDelete.Contains(t));
 
             var boxesArray = boxes.ToArray();
 
@@ -54,24 +45,38 @@ namespace SortCS
 
             foreach (var item in matchedBoxes)
             {
-                _trackers[item.Key].Update(item.Value);
+                _trackers[item.Key].Track.History.Add(item.Value);
+                _trackers[item.Key].Track.Misses = 0;
+                _trackers[item.Key].Tracker.Update(item.Value);
             }
+
+            var missedTracks = _trackers.Where(x => matchedBoxes.ContainsKey(x.Track.TrackId));
+            foreach (var missedTrack in missedTracks)
+            {
+                missedTrack.Track.Misses++;
+                missedTrack.Track.TotalMisses++;
+            }
+
+            _trackers.RemoveAll(x => x.Track.Misses > MaxAge);
 
             foreach (var unmatchedBox in unmatchedBoxes)
             {
-                _trackers.Add(new KalmanBoxTracker(unmatchedBox));
+                var track = new Track
+                {
+                    TrackId = _trackerIndex++,
+                    Class = unmatchedBox.Class,
+                    ClassName = unmatchedBox.ClassName,
+                    History = new List<BoundingBox>(),
+                    Misses = 0,
+                    State = TrackState.Started,
+                    TotalMisses = 0
+                };
+                _trackers.Add((track, new KalmanBoxTracker(unmatchedBox)));
             }
 
-            return _trackers.Select(x => new SortCS.Track
-            {
-                State = TrackState.Active,
-                TrackId = x.Id,
-                History = new List<BoundingBox> { x.LastBoundingBox },
-                Class = 0,
-                ClassName = "",
-                Misses = 0,
-                TotalMisses = 0
-            });
+            // todo: end trackers with > N misses
+
+            return _trackers.Select(x => x.Track);
         }
 
         private (Dictionary<int, BoundingBox> Matched, ICollection<BoundingBox> Unmatched) MatchDetectionsWithTrackers(
@@ -135,5 +140,5 @@ namespace SortCS
 
             return (matchedBoxes, unmatched);
         }
-         }
+    }
 }

@@ -8,7 +8,7 @@ namespace SortCS
         {
         }
 
-        public BoundingBox(int classIx, string className, float tly, float tlx, float w, float h, float score)
+        public BoundingBox(int classIx, string className, float tlx, float tly, float w, float h, float score)
         {
             Class = classIx;
             ClassName = className;

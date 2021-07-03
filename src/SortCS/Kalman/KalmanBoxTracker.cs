@@ -5,13 +5,11 @@ namespace SortCS.Kalman
 {
     internal class KalmanBoxTracker
     {
-        private static int _currentId;
         private readonly KalmanFilter _filter;
         private readonly List<BoundingBox> _history = new List<BoundingBox>();
         private int _timeSinceUpdate;
         private int _hits;
         private int _hitStreak;
-        private int _originalId;
         private int _age;
 
         public KalmanBoxTracker(BoundingBox box)
@@ -68,14 +66,7 @@ namespace SortCS.Kalman
                     }),
                 CurrentState = ToMeasurement(box).Append(0, 0, 0)
             };
-
-            Id = ++_currentId;
-
-            _originalId = box.Class;
         }
-
-        public int Id { get; }
-        public BoundingBox LastBoundingBox { get; private set; }
 
         public void Update(BoundingBox box)
         {
@@ -83,9 +74,7 @@ namespace SortCS.Kalman
             _history.Clear();
             _hits++;
             _hitStreak++;
-            _originalId = box.Class;
             _filter.Update(ToMeasurement(box));
-            LastBoundingBox = box;
         }
 
         public BoundingBox Predict()
@@ -116,7 +105,7 @@ namespace SortCS.Kalman
 
         private static Vector ToMeasurement(BoundingBox box)
         {
-            return new Vector((double)box.Center.X, (double)box.Center.Y, (double)box.Box.Width * (double)box.Box.Height, (double)box.Box.Width / (double)box.Box.Height);
+            return new Vector(box.Center.X, box.Center.Y, box.Box.Width * (double)box.Box.Height, box.Box.Width / (double)box.Box.Height);
         }
 
         private static BoundingBox ToBoundingBox(Vector currentState)
@@ -129,8 +118,8 @@ namespace SortCS.Kalman
                 string.Empty,
                 (float)(currentState[0] - (h / 2)),
                 (float)(currentState[1] - (w / 2)),
-                (float)(w),
-                (float)(h),
+                (float)w,
+                (float)h,
                 0);
         }
     }
