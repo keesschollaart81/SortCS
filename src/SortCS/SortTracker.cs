@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Xml.Schema;
 using HungarianAlgorithm;
 using SortCS.Kalman;
@@ -55,9 +56,15 @@ namespace SortCS
             {
                 missedTrack.Track.Misses++;
                 missedTrack.Track.TotalMisses++;
+                missedTrack.Track.State = TrackState.Ending;
             }
 
-            _trackers.RemoveAll(x => x.Track.Misses > MaxAge);
+            var toRemove = _trackers.Where(x => x.Track.Misses > MaxAge).ToList();
+            var removed = new List<Track>();
+            foreach (var tr in toRemove)
+            {
+                _trackers.Remove(tr);
+            }
 
             foreach (var unmatchedBox in unmatchedBoxes)
             {
@@ -76,7 +83,7 @@ namespace SortCS
 
             // todo: end trackers with > N misses
 
-            return _trackers.Select(x => x.Track);
+            return _trackers.Select(x => x.Track).Concat(toRemove.Select(y => y.Track));
         }
 
         private (Dictionary<int, BoundingBox> Matched, ICollection<BoundingBox> Unmatched) MatchDetectionsWithTrackers(
