@@ -48,6 +48,8 @@ namespace SortCS
             _trackers.RemoveAll(t => toDelete.Contains(t));
 
             MatchDetectionsWithTrackers(boxes.ToArray(), trackedBoxes);
+
+            // todo: return result.
             yield break;
         }
 

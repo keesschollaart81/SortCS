@@ -50,7 +50,8 @@ namespace SortCS.Tests
             // Act
             foreach (var frame in mot15Track)
             {
-                tracks = sut.Track(frame.BoundingBoxes);
+                // ToArray because otherwise the IEnumerable is not evaluated.
+                tracks = sut.Track(frame.BoundingBoxes).ToArray();
             }
 
             // Assert

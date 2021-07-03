@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace SortCS.Kalman
 {
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     internal class Matrix
     {
         private readonly double[,] _values;
@@ -68,6 +69,7 @@ namespace SortCS.Kalman
                 return new Matrix(result);
             }
         }
+        private string DebuggerDisplay => ToString();
 
         public static Matrix operator +(Matrix first, Matrix second)
         {
@@ -157,7 +159,7 @@ namespace SortCS.Kalman
 
         public override string ToString()
         {
-            return $"|{string.Join("|", Enumerable.Range(0, Rows).Select(row => $" {Row(row):###0.##} "))}|";
+            return $"{{{Rows}x{Columns}}} |{string.Join("|", Enumerable.Range(0, Rows).Select(row => $" {Row(row):###0.##} "))}|";
         }
 
         public Vector Dot(Vector vector)

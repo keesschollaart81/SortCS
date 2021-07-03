@@ -35,22 +35,26 @@ namespace SortCS.Kalman
                         { 1, 0, 0, 0, 1, 0, 0 },
                         { 0, 1, 0, 0, 0, 1, 0 },
                         { 0, 0, 1, 0, 0, 0, 1 },
-                        { 0, 0, 0, 1, 0, 0, 0 },
-                        { 0, 0, 0, 0, 0, 0, 0 },
-                        { 0, 0, 0, 0, 0, 0, 0 },
-                        { 0, 0, 0, 0, 0, 0, 0 }
+                        { 0, 0, 0, 1, 0, 0, 0 }
                     }),
-                StateUncertainty = new Matrix(
+                UncertaintyCovariances = new Matrix(
                     new double[,]
                     {
-                        { 1, 0, 0, 0, 0, 0, 0 },
-                        { 0, 1, 0, 0, 0, 0, 0 },
+                        { 10, 0, 0, 0, 0, 0, 0 },
+                        { 0, 10, 0, 0, 0, 0, 0 },
                         { 0, 0, 10, 0, 0, 0, 0 },
                         { 0, 0, 0, 10, 0, 0, 0 },
                         { 0, 0, 0, 0, 10000, 0, 0 },
                         { 0, 0, 0, 0, 0, 10000, 0 },
                         { 0, 0, 0, 0, 0, 0, 10000 }
                     }),
+                MeasurementUncertainty = new Matrix(new double[,]
+                {
+                    { 1, 0, 0, 0 },
+                    { 0, 1, 0, 0 },
+                    { 0, 0, 10, 0 },
+                    { 0, 0, 0, 10 },
+                }),
                 ProcessUncertainty = new Matrix(
                     new double[,]
                     {
@@ -62,7 +66,6 @@ namespace SortCS.Kalman
                         { 0, 0, 0, 0, 0, .01, 0 },
                         { 0, 0, 0, 0, 0, 0, .001 }
                     }),
-                UncertaintyCovariances = Matrix.Identity(7) * 10,
                 CurrentState = ToMeasurement(box).Append(0, 0, 0)
             };
 

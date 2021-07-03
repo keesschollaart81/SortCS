@@ -10,7 +10,8 @@ namespace SortCS.Kalman
         private readonly Matrix _processUncertainty;
         private readonly Matrix _stateTransitionMatrix;
         private readonly Matrix _measurementFunction;
-        private readonly Matrix _stateUncertainty;
+        private readonly Matrix _uncertaintyCovariance;
+        private readonly Matrix _measurementUncertainty;
         private readonly double _alphaSq;
 
         private Vector _currentState;
@@ -25,9 +26,9 @@ namespace SortCS.Kalman
 
             StateTransitionMatrix = _identity; // F 
             MeasurementFunction = new Matrix(_measurementSize, _stateSize); //  H
-            StateUncertainty = Matrix.Identity(_measurementSize); // P
+            UncertaintyCovariances = Matrix.Identity(_stateSize); // P
+            MeasurementUncertainty = Matrix.Identity(_measurementSize); // R
             ProcessUncertainty = _identity; // Q
-            UncertaintyCovariances = _identity;
             CurrentState = new Vector(stateSize);
         }
 
@@ -64,6 +65,14 @@ namespace SortCS.Kalman
                 : throw new ArgumentException($"Matrix must be of size {_stateSize}x{_stateSize}.", nameof(value));
         }
 
+        public Matrix MeasurementUncertainty
+        {
+            get => _measurementUncertainty;
+            init=>_measurementUncertainty = value.Rows == _measurementSize && value.Columns == _measurementSize
+                ? value
+                : throw new ArgumentException($"Matrix must be of size {_measurementSize}x{_measurementSize}.", nameof(value));
+        }
+
         /// <summary>
         /// Gets the state transition matrix.
         /// </summary>
@@ -86,17 +95,6 @@ namespace SortCS.Kalman
                 : throw new ArgumentException($"Matrix must be of size {_measurementSize}x{_stateSize}.", nameof(value));
         }
 
-        /// <summary>
-        /// Gets the state uncertainty.
-        /// </summary>
-        public Matrix StateUncertainty
-        {
-            get => _stateUncertainty;
-            init => _stateUncertainty = value.Rows == _stateSize && value.Columns == _stateSize
-                ? value
-                : throw new ArgumentException($"Matrix must be of size {_stateSize}x{_stateSize}.", nameof(value));
-        }
-
         public void Predict(Matrix stateTransitionMatrix = null, Matrix processNoiseMatrix = null)
         {
             stateTransitionMatrix ??= StateTransitionMatrix;
@@ -108,7 +106,7 @@ namespace SortCS.Kalman
 
         public void Update(Vector measurement, Matrix measurementNoise = null, Matrix measurementFunction = null)
         {
-            measurementNoise ??= StateUncertainty;
+            measurementNoise ??= MeasurementUncertainty;
             measurementFunction ??= MeasurementFunction;
 
             var y = measurement - measurementFunction.Dot(CurrentState);
