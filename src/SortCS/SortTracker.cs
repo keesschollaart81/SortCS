@@ -46,12 +46,14 @@ namespace SortCS
 
             foreach (var item in matchedBoxes)
             {
-                _trackers[item.Key].Track.History.Add(item.Value);
-                _trackers[item.Key].Track.Misses = 0;
-                _trackers[item.Key].Tracker.Update(item.Value);
+                var track = _trackers[item.Key];
+                track.Track.History.Add(item.Value);
+                track.Track.Misses = 0;
+                track.Track.State = TrackState.Active;
+                track.Tracker.Update(item.Value);
             }
 
-            var missedTracks = _trackers.Where(x => matchedBoxes.ContainsKey(x.Track.TrackId));
+            var missedTracks = _trackers.Where(x => !matchedBoxes.ContainsKey(x.Track.TrackId));
             foreach (var missedTrack in missedTracks)
             {
                 missedTrack.Track.Misses++;
@@ -60,9 +62,9 @@ namespace SortCS
             }
 
             var toRemove = _trackers.Where(x => x.Track.Misses > MaxAge).ToList();
-            var removed = new List<Track>();
             foreach (var tr in toRemove)
             {
+                tr.Track.State = TrackState.Ended;
                 _trackers.Remove(tr);
             }
 
@@ -81,9 +83,28 @@ namespace SortCS
                 _trackers.Add((track, new KalmanBoxTracker(unmatchedBox)));
             }
 
-            // todo: end trackers with > N misses
+            var result = _trackers.Select(x => x.Track).Concat(toRemove.Select(y => y.Track));
+            Log(result);
+            return result;
+        }
 
-            return _trackers.Select(x => x.Track).Concat(toRemove.Select(y => y.Track));
+        private void Log(IEnumerable<Track> tracks)
+        {
+            if (!tracks.Any())
+            {
+                return;
+            }
+
+            var tracksWithHistory = tracks.Where(x => x.History != null);
+            var longest = tracksWithHistory.Max(x => x.History.Count);
+            var anyStarted = tracksWithHistory.Any(x => x.History.Count == 1 && x.Misses == 0);
+            var ended = tracks.Count(x => x.State == TrackState.Ended);
+            if (anyStarted || ended > 0)
+            {
+                var tracksStr = tracks.Select(x => $"{x.TrackId}{(x.State == TrackState.Active ? null : $": {x.State}")}");
+
+                Console.WriteLine($"Tracks: [{string.Join(",", tracksStr)}], Longest: {longest}, Ended: {ended}");
+            }
         }
 
         private (Dictionary<int, BoundingBox> Matched, ICollection<BoundingBox> Unmatched) MatchDetectionsWithTrackers(

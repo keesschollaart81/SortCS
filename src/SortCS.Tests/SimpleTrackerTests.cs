@@ -43,7 +43,7 @@ namespace SortCS.Tests
                     new BoundingBox(1, "person", 1259, 529,55,129, 1)
                 }),
             };
-             
+
             var tracks = Enumerable.Empty<Track>();
             var sut = new SortTracker();
 
@@ -71,8 +71,8 @@ namespace SortCS.Tests
                 }),
                 new Frame(new List<BoundingBox>{
                     new BoundingBox(1, "person", 0.6f, 0.35f, 0.1f, 0.1f, 1),
-                      new BoundingBox(1, "person", 0.9f, 0.9f, 0.15f, 0.15f, 1),
-                  new BoundingBox(1, "person", 0.2f, 0.2f, 0.15f, 0.15f, 1)
+                    new BoundingBox(1, "person", 0.9f, 0.9f, 0.15f, 0.15f, 1),
+                    new BoundingBox(1, "person", 0.2f, 0.2f, 0.15f, 0.15f, 1)
                 }),
                 new Frame(new List<BoundingBox>{
                     new BoundingBox(1, "person", 0.3f, 0.3f, 0.15f, 0.15f, 1),
@@ -99,7 +99,11 @@ namespace SortCS.Tests
             // Act
             foreach (var frame in crossingTrack)
             {
-                tracks = sut.Track(frame.BoundingBoxes).ToArray();
+                var result = sut.Track(frame.BoundingBoxes).ToArray();
+                if (result.Any())
+                {
+                    tracks = result;
+                }
             }
 
             var complexTrack1 = tracks.ElementAt(0);
