@@ -30,9 +30,9 @@ namespace SortCS.Kalman
                 MeasurementFunction = new Matrix(
                     new double[,]
                     {
-                        { 1, 0, 0, 0, 1, 0, 0 },
-                        { 0, 1, 0, 0, 0, 1, 0 },
-                        { 0, 0, 1, 0, 0, 0, 1 },
+                        { 1, 0, 0, 0, 0, 0, 0 },
+                        { 0, 1, 0, 0, 0, 0, 0 },
+                        { 0, 0, 1, 0, 0, 0, 0 },
                         { 0, 0, 0, 1, 0, 0, 0 }
                     }),
                 UncertaintyCovariances = new Matrix(
@@ -62,7 +62,7 @@ namespace SortCS.Kalman
                         { 0, 0, 0, 1, 0, 0, 0 },
                         { 0, 0, 0, 0, .01, 0, 0 },
                         { 0, 0, 0, 0, 0, .01, 0 },
-                        { 0, 0, 0, 0, 0, 0, .001 }
+                        { 0, 0, 0, 0, 0, 0, .0001 }
                     }),
                 CurrentState = ToMeasurement(box).Append(0, 0, 0)
             };
@@ -116,8 +116,8 @@ namespace SortCS.Kalman
             return new BoundingBox(
                 0,
                 string.Empty,
-                (float)(currentState[0] - (h / 2)),
-                (float)(currentState[1] - (w / 2)),
+                (float)(currentState[0] - (w / 2)),
+                (float)(currentState[1] - (h / 2)),
                 (float)w,
                 (float)h,
                 0);

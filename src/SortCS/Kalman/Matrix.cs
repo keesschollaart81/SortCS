@@ -5,9 +5,36 @@ using System.Linq;
 namespace SortCS.Kalman
 {
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
+    [DebuggerTypeProxy(typeof(MatrixDisplay))]
     internal class Matrix
     {
         private readonly double[,] _values;
+
+        internal class MatrixDisplay
+        {
+            public MatrixDisplay(Matrix matrix)
+            {
+                Cells = Enumerable.Range(0, matrix.Rows)
+                    .Select(row =>
+                        new Cell(string.Join("  ", Enumerable.Range(0, matrix.Columns).Select(col => matrix._values[row, col]))))
+                    .ToArray();
+            }
+
+            [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
+            public Cell[] Cells { get; }
+
+            [DebuggerDisplay("{" + nameof(Value) + ", nq}")]
+            internal class Cell
+            {
+                public Cell(string value)
+                {
+                    Value = value;
+                }
+
+                public string Value { get; }
+            }
+        }
+
 
         public Matrix(double[,] values)
         {

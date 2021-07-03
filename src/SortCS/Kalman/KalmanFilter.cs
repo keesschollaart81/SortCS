@@ -10,7 +10,6 @@ namespace SortCS.Kalman
         private readonly Matrix _processUncertainty;
         private readonly Matrix _stateTransitionMatrix;
         private readonly Matrix _measurementFunction;
-        private readonly Matrix _uncertaintyCovariance;
         private readonly Matrix _measurementUncertainty;
         private readonly double _alphaSq;
 
@@ -101,7 +100,7 @@ namespace SortCS.Kalman
             processNoiseMatrix ??= ProcessUncertainty;
 
             _currentState = stateTransitionMatrix.Dot(CurrentState);
-            _uncertaintyCovariances = _alphaSq * stateTransitionMatrix * UncertaintyCovariances * stateTransitionMatrix.Transposed;
+            _uncertaintyCovariances = _alphaSq * stateTransitionMatrix * UncertaintyCovariances * stateTransitionMatrix.Transposed + processNoiseMatrix;
         }
 
         public void Update(Vector measurement, Matrix measurementNoise = null, Matrix measurementFunction = null)
