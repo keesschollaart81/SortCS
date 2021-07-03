@@ -75,7 +75,7 @@ namespace SortCS
                     TrackId = _trackerIndex++,
                     Class = unmatchedBox.Class,
                     ClassName = unmatchedBox.ClassName,
-                    History = new List<BoundingBox>(),
+                    History = new List<BoundingBox>() { unmatchedBox },
                     Misses = 0,
                     State = TrackState.Started,
                     TotalMisses = 0
@@ -134,39 +134,31 @@ namespace SortCS
 
             // here we filter the matches that did not have a cost of 100
             // todo: filter before `FindAssignments()` so that all matches with a cost of 100 are ignored / not part of the computation
-            var matchedBoxIndicesWithOverlap = matchedBoxIndices.ToDictionary(x => x, boxIx =>
-            {
-                for (var trackIx = 0; trackIx < matrix2.GetLength(0); trackIx++)
-                {
-                    if (matrix2[trackIx, boxIx] < 100)
-                    {
-                        return (int?)trackIx;
-                    }
-                }
+            var tussenstap = matchedBoxIndices.Select((ti, bi) => (bi, ti));
+            var matchedBoxIndicesWithOverlap = tussenstap.ToDictionary(x => x.bi, x =>
+             {
+                 if (matrix2[x.bi, x.ti] < 100)
+                 {
+                     return (int?)x.ti;
+                 }
 
-                return null;
-            });
+                 return null;
+             });
 
             var matchedBoxes = new Dictionary<int, BoundingBox>();
+            var unmatchedBoxes = new List<BoundingBox>();
             for (var bi = 0; bi < boxes.Count; bi++)
             {
-                if (!matchedBoxIndicesWithOverlap.ContainsKey(bi))
+                if (!matchedBoxIndicesWithOverlap.ContainsKey(bi) || !matchedBoxIndicesWithOverlap[bi].HasValue)
                 {
+                    unmatchedBoxes.Add(boxes.ElementAt(bi));
                     continue;
                 }
 
-                var trackId = matchedBoxIndicesWithOverlap[bi];
-                if (trackId.HasValue)
-                {
-                    matchedBoxes.Add(trackId.Value, boxes.ElementAt(bi));
-                }
+                matchedBoxes.Add(matchedBoxIndicesWithOverlap[bi].Value, boxes.ElementAt(bi));
             }
 
-            var unmatched = boxes
-                .Where((b, index) => !matchedBoxIndicesWithOverlap.ContainsKey(index) || !matchedBoxIndicesWithOverlap[index].HasValue)
-                .ToList();
-
-            return (matchedBoxes, unmatched);
+            return (matchedBoxes, unmatchedBoxes);
         }
     }
 }
