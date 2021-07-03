@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -66,9 +67,24 @@ namespace SortCS
                 return (int)((1 - iou) * 100); // int costs?
             })).ToArray(boxes.Count, trackers.Count);
 
+            if (trackers.Count == 0)
+            {
+                foreach (var box in boxes)
+                {
+                    _trackers.Add(new KalmanBoxTracker(box));
+                }
+
+                return;
+            }
+
             var matched = matrix.FindAssignments();
+            for (var i = 0; i < matched.Length; i++)
+            {
+                _trackers[i].Update(boxes.ElementAt(matched[i]));
+            }
 
             var unmatched = boxes.Where((b, index) => !matched.Contains(index));
+            // todo remove stale trackers
         }
 
         // if(len(trackers)==0):

@@ -45,7 +45,7 @@ namespace SortCS.Tests
             };
              
             var tracks = Enumerable.Empty<Track>();
-            var sut = new SimpleBoxTracker();
+            var sut = new SortTracker();
 
             // Act
             foreach (var frame in mot15Track)

@@ -31,7 +31,7 @@ namespace SortCS.Evaluate
             {
                 tasks.Add(EvaluateBenchMark(benchmarkDir));
             }
-            await Task.WhenAll(tasks); 
+            await Task.WhenAll(tasks);
         }
 
         private async Task EvaluateBenchMark(DirectoryInfo benchmarkFolder)
@@ -79,7 +79,8 @@ namespace SortCS.Evaluate
                 Console.WriteLine(path);
                 using var file = new StreamWriter(path, false);
 
-                ITracker tracker = new SimpleBoxTracker(); // or SortTracker
+                //ITracker tracker = new SimpleBoxTracker(); // or SortTracker
+                ITracker tracker = new SortTracker();
                 foreach (var frame in frames)
                 {
                     var tracks = tracker.Track(frame.Value);

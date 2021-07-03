@@ -23,12 +23,12 @@ namespace SortCS.Kalman
             _identity = Matrix.Identity(stateSize);
             _alphaSq = 1.0d;
 
-            CurrentState = new Vector(stateSize);
+            StateTransitionMatrix = _identity; // F 
+            MeasurementFunction = new Matrix(_measurementSize, _stateSize); //  H
+            StateUncertainty = Matrix.Identity(_measurementSize); // P
+            ProcessUncertainty = _identity; // Q
             UncertaintyCovariances = _identity;
-            ProcessUncertainty = _identity;
-            StateTransitionMatrix = _identity;
-            MeasurementFunction = new Matrix(_measurementSize, _stateSize);
-            StateUncertainty = Matrix.Identity(_measurementSize);
+            CurrentState = new Vector(stateSize);
         }
 
         /// <summary>
