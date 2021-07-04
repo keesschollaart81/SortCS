@@ -27,19 +27,14 @@ jobs:
         dotnet-version: 5.0.x
 
     - name: Build
+      working-directory: src/SortCS 
       run: dotnet build --configuration Release /p:Version=${VERSION}
-
-    - name: Test
-      run: dotnet test --configuration Release /p:Version=${VERSION} --no-build
 
     - name: Pack
       run: dotnet pack --configuration Release /p:Version=${VERSION} --no-build --output .
+      working-directory: src/SortCS 
     
     - name: PushNuget
       run: dotnet nuget push *.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_API_KEY}} --skip-duplicate
-    
-      #- name: Push
-      #run: dotnet nuget push SortCS.${VERSION}.nupkg --source https://nuget.pkg.github.com/acraven/index.json --api-key ${NUGET_API_KEY}
-      #env:
-      #  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+      working-directory: src/SortCS 
+     

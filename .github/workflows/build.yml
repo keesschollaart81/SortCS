@@ -97,50 +97,24 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build-and-test
-    #if: github.ref == 'refs/heads/master'
     steps:
 
     - uses: actions/checkout@v2
-
-    #- name: Setup .NET Core 5.0
-    #  uses: actions/setup-dotnet@v1
-    #  with:
-    #    dotnet-version: 5.0.x
-        
-    #- name: Restore dependencies
-    #  run: dotnet restore
-    #  working-directory: src/SortCS
-      
-    #- name: Build
-    #  run: dotnet build -c Release --no-restore
-    #  working-directory: src/SortCS
-
-    #- name: Build
-    #  run: dotnet pack -c Release --no-restore
-    #  working-directory: src/SortCS
-       
-    #- name: Verify commit exists in origin/main
-    #  run: |
-    #    git fetch --no-tags --prune --depth=1 origin +refs/heads/*:refs/remotes/origin/*
-    #    git branch --remote --contains | grep origin/main
-
-    - name: Set VERSION variable from tag
-      run: echo "VERSION=0.9.0" >> $GITHUB_ENV
 
     - name: Setup .NET Core 5.0
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.0.x
+        
+    - name: Restore dependencies
+      run: dotnet restore
+      working-directory: src/SortCS
+      
+    - name: Build
+      run: dotnet build -c Release --no-restore
+      working-directory: src/SortCS
 
     - name: Build
-      run: dotnet build --configuration Release /p:Version=${VERSION}
-      working-directory: src/SortCS 
-
-    - name: Pack
-      run: dotnet pack --configuration Release /p:Version=${VERSION} --no-build --output .
+      run: dotnet pack -c Release --no-restore
       working-directory: src/SortCS
-    
-    - name: PushNuget
-      run: dotnet nuget push *.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{secrets.NUGET_API_KEY}} --skip-duplicate
-      working-directory: src/SortCS
-    
+       
