@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using System.Collections.Generic;
 using IniParser;
+using System.Globalization;
 
 namespace SortCS.Evaluate
 {
@@ -56,21 +57,25 @@ namespace SortCS.Evaluate
                 var lines = await File.ReadAllLinesAsync(gtFile.FullName);
 
                 var frames = new Dictionary<int, List<BoundingBox>>();
+                var numberInfo = new NumberFormatInfo() { NumberDecimalSeparator = "." };
                 foreach (var line in lines)
                 {
                     var parts = line.Split(',');
                     var frameId = int.Parse(parts[0]);
                     var gtTrackId = int.Parse(parts[1]);
-                    var bbLeft = float.Parse(parts[2]);
-                    var bbTop = float.Parse(parts[3]);
-                    var bbWidth = float.Parse(parts[4]);
-                    var bbHeight = float.Parse(parts[5]);
+                    var bbLeft = float.Parse(parts[2], numberInfo);
+                    var bbTop = float.Parse(parts[3], numberInfo);
+                    var bbWidth = float.Parse(parts[4], numberInfo);
+                    var bbHeight = float.Parse(parts[5], numberInfo);
+                    var bbConf = float.Parse(parts[6], numberInfo);
                     if (!frames.ContainsKey(frameId))
                     {
                         frames.Add(frameId, new List<BoundingBox>());
                     }
-
-                    frames[frameId].Add(new BoundingBox(0, "", bbTop, bbLeft, bbHeight, bbWidth, 1));
+                    if (bbConf > 0)
+                    {
+                        frames[frameId].Add(new BoundingBox(0, "", bbLeft, bbTop, bbWidth, bbHeight, bbConf));
+                    }
                 }
 
                 Console.WriteLine($"{frames.Count}");
@@ -90,7 +95,7 @@ namespace SortCS.Evaluate
                         {
                             var lastBox = track.History.Last();
                             //<frame>, <id>, <bb_left>, <bb_top>, <bb_width>, <bb_height>, <conf>, <x>, <y>, <z>
-                            var line = $"{frame.Key:0.},{track.TrackId:0.},{lastBox.Box.Top:0.},{lastBox.Box.Left:0.},{lastBox.Box.Height:0.},{lastBox.Box.Width:0.},1,-1,-1,-1";
+                            var line = $"{frame.Key:0.},{track.TrackId:0.},{lastBox.Box.Left:0.},{lastBox.Box.Top:0.},{lastBox.Box.Width:0.},{lastBox.Box.Height:0.},1,-1,-1,-1";
                             await file.WriteLineAsync(line);
                         }
                     }

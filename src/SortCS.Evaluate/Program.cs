@@ -21,8 +21,8 @@ namespace SortCS.Evaluate
                     description: "Location where data is stored using this format: https://github.com/JonathonLuiten/TrackEval/blob/master/docs/MOTChallenge-format.txt"),
                 new Option<string>(
                     "--benchmark",
-                    getDefaultValue: () => "MOT15",
-                    description: "Name of the benchmark, e.g. MOT15, MO16, MOT17 or MOT20 (default : MOT15)"),
+                    getDefaultValue: () => "MOT20",
+                    description: "Name of the benchmark, e.g. MOT15, MO16, MOT17 or MOT20 (default : MOT20)"),
                 new Option<string>(
                     "--split-to-eval",
                     getDefaultValue: () => "train",

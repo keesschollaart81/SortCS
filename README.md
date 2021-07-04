@@ -46,27 +46,48 @@ The output can be used for https://motchallenge.net/ and their [TrackEval SDK](h
 Brief instructions:
 - Clone this repo and the TrackEval in the same folder / next to each other
 - Run the SortCS.Evaluate Console app. The `--data-folder` arguments needs to point to the data folder in the `TrackEval` repo.
-- Make sure that the outputs (tracks+detections) will be stored in `TrackEval/data/trackers/mot_challenge/MOT15-train/SortCS/data`
+- Make sure that the outputs (tracks+detections) will be stored in `TrackEval/data/trackers/mot_challenge/MOT20-train/SortCS/data`
 - Run TrackEval (according to their [readme](https://github.com/JonathonLuiten/TrackEval/blob/master/docs/MOTChallenge-Official/Readme.md)):
-  `python scripts/run_mot_challenge.py --BENCHMARK MOT15 --SPLIT_TO_EVAL train --TRACKERS_TO_EVAL SortCS --METRICS HOTA CLEAR Identity VACE --USE_PARALLEL False --NUM_PARALLEL_CORES 1`
+  `python scripts/run_mot_challenge.py --BENCHMARK MOT20 --SPLIT_TO_EVAL train --TRACKERS_TO_EVAL SortCS --METRICS HOTA CLEAR Identity VACE --USE_PARALLEL False --NUM_PARALLEL_CORES 1`
 
-Example results for SortCS & MOT15:
+Example results for SortCS & MOT20:
 ```
-All sequences for SortCs finished in 5.05 seconds
+All sequences for SortCS finished in 83.10 seconds
 
 HOTA: SortCS-pedestrian            HOTA      DetA      AssA      DetRe     DetPr     AssRe     AssPr     LocA      RHOTA     HOTA(0)   LocA(0)   HOTALocA(0)
-ADL-Rundle-6                       98.384    100       96.794    100       100       96.794    100       100       98.384    98.384    100       98.384
-ADL-Rundle-8                       100       100       100       100       100       100       100       100       100       100       100       100
-ETH-Bahnhof                        75.855    70.513    81.601    99.928    70.549    97.145    83.768    99.969    90.301    75.916    99.928    75.862
-ETH-Pedcross2                      94.877    92.497    97.318    99.9      92.583    98.908    98.238    99.957    98.601    95.006    99.899    94.91
-ETH-Sunnyday                       98.479    97.738    99.225    100       97.738    100       99.225    100       99.612    98.479    100       98.479
-KITTI-13                           0.13798   0.043755  0.43509   0.096698  0.079316  0.43509   10.526    90.526    0.20512   1.3108    10        0.13108
-KITTI-17                           0.077672  0.036049  0.16735   0.077059  0.067304  0.16735   10.526    90.535    0.11356   0.73788   10.086    0.074424
-PETS09-S2L1                        0.014927  0.0023074 0.096572  0.0047034 0.0045274 0.096572  10.526    90.526    0.021312  0.14181   10        0.014181
-TUD-Campus                         73.576    73.813    73.351    84.929    84.929    73.351    100       99.742    78.925    74.383    97.41     72.456
-TUD-Stadtmitte                     0.041713  0.0068323 0.25467   0.013659  0.013659  0.25467   15.789    86.785    0.058978  0.26418   16.306    0.043079
-Venice-2                           100       100       100       100       100       100       100       100       100       100       100       100
-COMBINED                           78.957    65.169    95.662    82.108    75.955    98.577    96.939    99.98     88.627    79.003    99.903    78.926
+MOT20-01                           100       100       100       100       100       100       100       100       100       100       100       100
+MOT20-02                           78.251    100       61.232    100       100       65.497    88.4      100       78.251    78.251    100       78.251
+MOT20-03                           69.046    99.999    47.674    100       100       48.984    86.758    100       69.046    69.047    100       69.046
+MOT20-05                           66.401    99.798    44.18     99.899    99.899    47.377    81.006    99.965    66.435    66.459    99.904    66.395
+COMBINED                           69.567    99.885    48.452    99.942    99.942    51.216    83.939    99.98     69.587    69.6      99.945    69.562
+
+CLEAR: SortCS-pedestrian           MOTA      MOTP      MODA      CLR_Re    CLR_Pr    MTR       PTR       MLR       sMOTA     CLR_TP    CLR_FN    CLR_FP    IDSW      MT        PT        ML        Frag      
+MOT20-01                           100       100       100       100       100       100       0         0         100       19870     0         0         0         74        0         0         0
+MOT20-02                           99.866    100       100       100       100       100       0         0         99.866    154742    0         0         207       270       0         0         0
+MOT20-03                           99.283    99.974    100       100       100       100       0         0         99.258    313658    0         0         2248      702       0         0         0
+MOT20-05                           99.338    99.929    100       100       100       100       0         0         99.267    646344    0         0         4280      1169      0         0         0
+COMBINED                           99.406    99.952    100       100       100       100       0         0         99.359    1134614   0         0         6735      2215      0         0         0
+
+Identity: SortCS-pedestrian        IDF1      IDR       IDP       IDTP      IDFN      IDFP
+MOT20-01                           100       100       100       19870     0         0
+MOT20-02                           70.672    70.672    70.672    109359    45383     45383
+MOT20-03                           60.385    60.385    60.385    189401    124257    124257
+MOT20-05                           57.169    57.169    57.169    369506    276838    276838
+COMBINED                           60.649    60.649    60.649    688136    446478    446478
+
+VACE: SortCS-pedestrian            SFDA      ATA
+MOT20-01                           100       100
+MOT20-02                           100       57.835
+MOT20-03                           100       31.045
+MOT20-05                           100       31.712
+COMBINED                           100       34.767
+
+Count: SortCS-pedestrian           Dets      GT_Dets   IDs       GT_IDs
+MOT20-01                           19870     19870     74        74
+MOT20-02                           154742    154742    408       270
+MOT20-03                           313658    313658    2149      702
+MOT20-05                           646344    646344    3635      1169
+COMBINED                           1134614   1134614   6266      2215
 ```
 
 # Attributions
