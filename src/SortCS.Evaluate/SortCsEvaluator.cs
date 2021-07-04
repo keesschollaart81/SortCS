@@ -90,7 +90,7 @@ namespace SortCS.Evaluate
                         {
                             var lastBox = track.History.Last();
                             //<frame>, <id>, <bb_left>, <bb_top>, <bb_width>, <bb_height>, <conf>, <x>, <y>, <z>
-                            var line = $"{frame.Key:0.},{track.TrackId:0.},{lastBox.Box.Left:0.},{lastBox.Box.Top:0.},{lastBox.Box.Width:0.},{lastBox.Box.Height:0.},1,-1,-1,-1";
+                            var line = $"{frame.Key:0.},{track.TrackId:0.},{lastBox.Box.Top:0.},{lastBox.Box.Left:0.},{lastBox.Box.Height:0.},{lastBox.Box.Width:0.},1,-1,-1,-1";
                             await file.WriteLineAsync(line);
                         }
                     }

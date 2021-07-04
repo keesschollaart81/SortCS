@@ -21,7 +21,7 @@ namespace SortCS.Tests
                 new Frame(new List<BoundingBox>{
                     new BoundingBox(1, "person", 1699,383,159,341, 1),
                     new BoundingBox(1, "person", 1293,455,83,213,  1),
-                    //new BoundingBox(1, "person", 261,447,101,263,  1),
+                    new BoundingBox(1, "person", 261,447,101,263,  1),
                     new BoundingBox(1, "person", 1253,529,55,127,  1)
                 }),
                 new Frame(new List<BoundingBox>{
@@ -56,7 +56,7 @@ namespace SortCS.Tests
             }
 
             // Assert
-            Assert.AreEqual(4, tracks.Count());
+            Assert.AreEqual(4, tracks.Where(x => x.State == TrackState.Active).Count());
         }
 
         [TestMethod]
