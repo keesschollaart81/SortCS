@@ -13,7 +13,8 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]  
+        os: [ubuntu-latest]  
+        #os: [ubuntu-latest, windows-latest, macos-latest]  
 
     runs-on: ${{ matrix.os }}
 
@@ -118,10 +119,10 @@ jobs:
     #  run: dotnet pack -c Release --no-restore
     #  working-directory: src/SortCS
        
-    - name: Verify commit exists in origin/main
-      run: |
-        git fetch --no-tags --prune --depth=1 origin +refs/heads/*:refs/remotes/origin/*
-        git branch --remote --contains | grep origin/main
+    #- name: Verify commit exists in origin/main
+    #  run: |
+    #    git fetch --no-tags --prune --depth=1 origin +refs/heads/*:refs/remotes/origin/*
+    #    git branch --remote --contains | grep origin/main
 
     - name: Set VERSION variable from tag
       run: echo "VERSION=0.9.0" >> $GITHUB_ENV
