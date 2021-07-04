@@ -19,7 +19,7 @@
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <RepositoryType>Github</RepositoryType>
     <RepositoryUrl>https://github.com/keesschollaart81/SortCS.git</RepositoryUrl>
-    <PackageLicenseUrl>https://github.com/keesschollaart81/SortCS/blob/main/LICENSE</PackageLicenseUrl>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <NeutralLanguage>en</NeutralLanguage>
     <PackageProjectUrl>https://github.com/keesschollaart81/SortCS</PackageProjectUrl>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -45,5 +45,6 @@
 
   <ItemGroup>
     <None Include="./icon.png" Pack="true" PackagePath="" />
+    <None Include="../../LICENSE" Pack="true" PackagePath="LICENSE"/>
   </ItemGroup>
 </Project>
