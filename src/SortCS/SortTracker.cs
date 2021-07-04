@@ -146,7 +146,8 @@ namespace SortCS
             var unmatchedBoxes = boxes.Where((_, index) => !boxTrackerMapping.ContainsKey(index)).ToArray();
             var matchedBoxes = boxes.Select((box, index) => boxTrackerMapping.TryGetValue(index, out var tracker)
                     ? (Tracker: tracker, Box: box)
-                    : (Tracker: -1, Box: null)).Where(tb => tb.Tracker != -1)
+                    : (Tracker: -1, Box: null))
+                .Where(tb => tb.Tracker != -1)
                 .ToDictionary(tb => tb.Tracker, tb => tb.Box);
 
             return (matchedBoxes, unmatchedBoxes);
