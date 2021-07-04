@@ -137,33 +137,17 @@ namespace SortCS
             }
 
             var original = (int[,])matrix.Clone();
-            var matchedBoxIndices = matrix.FindAssignments();
+            var minimalThreshold = (int)(-IouThreshold * 100);
+            var boxTrackerMapping = matrix.FindAssignments()
+                .Select((ti, bi) => (bi, ti))
+                .Where(bt => bt.ti < trackers.Count && original[bt.bi, bt.ti] <= minimalThreshold)
+                .ToDictionary(bt => bt.bi, bt => bt.ti);
 
-            // here we filter the matches that did not have a cost of 100
-            // todo: filter before `FindAssignments()` so that all matches with a cost of 100 are ignored / not part of the computation
-            var tussenstap = matchedBoxIndices.Select((ti, bi) => (bi, ti)).Where(bt => bt.ti < trackers.Count);
-            var matchedBoxIndicesWithOverlap = tussenstap.ToDictionary(x => x.bi, x =>
-             {
-                 if (original[x.bi, x.ti] < 100)
-                 {
-                     return (int?)x.ti;
-                 }
-
-                 return null;
-             });
-
-            var matchedBoxes = new Dictionary<int, BoundingBox>();
-            var unmatchedBoxes = new List<BoundingBox>();
-            for (var bi = 0; bi < boxes.Count; bi++)
-            {
-                if (!matchedBoxIndicesWithOverlap.ContainsKey(bi) || !matchedBoxIndicesWithOverlap[bi].HasValue)
-                {
-                    unmatchedBoxes.Add(boxes.ElementAt(bi));
-                    continue;
-                }
-
-                matchedBoxes.Add(matchedBoxIndicesWithOverlap[bi].Value, boxes.ElementAt(bi));
-            }
+            var unmatchedBoxes = boxes.Where((_, index) => !boxTrackerMapping.ContainsKey(index)).ToArray();
+            var matchedBoxes = boxes.Select((box, index) => boxTrackerMapping.TryGetValue(index, out var tracker)
+                    ? (Tracker: tracker, Box: box)
+                    : (Tracker: -1, Box: null)).Where(tb => tb.Tracker != -1)
+                .ToDictionary(tb => tb.Tracker, tb => tb.Box);
 
             return (matchedBoxes, unmatchedBoxes);
         }
