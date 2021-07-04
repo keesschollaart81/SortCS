@@ -160,8 +160,8 @@ namespace SortCS
                 return 0;
             }
 
-            double intersectArea = intersection.Width * intersection.Height;
-            double unionArea = (a.Width * a.Height) + (b.Width * b.Height) - intersectArea;
+            double intersectArea = (1.0 + intersection.Width) * (1.0 + intersection.Height);
+            double unionArea = ((1.0 + a.Width) * (1.0 + a.Height)) + ((1.0 + b.Width) * (1.0 + b.Height)) - intersectArea;
             return intersectArea / (unionArea + 1e-5);
         }
     }
