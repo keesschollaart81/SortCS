@@ -3,7 +3,7 @@
   <PropertyGroup> 
     <TargetFrameworks>netstandard2.0; net5.0</TargetFrameworks>
     <LangVersion>preview</LangVersion>
-     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>  
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>  
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Kees Schollaart, Maarten van Sambeek</Authors>
     <Company>Vision Intelligence</Company>
@@ -19,7 +19,7 @@
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <RepositoryType>Github</RepositoryType>
     <RepositoryUrl>https://github.com/keesschollaart81/SortCS.git</RepositoryUrl>
-    <PackageLicenseUrl></PackageLicenseUrl>
+    <PackageLicenseUrl>https://github.com/keesschollaart81/SortCS/blob/main/LICENSE</PackageLicenseUrl>
     <NeutralLanguage>en</NeutralLanguage>
     <PackageProjectUrl>https://github.com/keesschollaart81/SortCS</PackageProjectUrl>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>

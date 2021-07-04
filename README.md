@@ -1,6 +1,6 @@
 <h1 align="center">
 
-<img src="https://raw.githubusercontent.com/keesschollaart81/SortCS/main/resources/logo.png" width=150 alt="SortCS"/>
+<img src="https://raw.githubusercontent.com/keesschollaart81/SortCS/main/resources/logo.png" width="150" alt="SortCS"/>
 <br/>
 SortCS - A Multiple Object Tracker
 </h1>
@@ -9,8 +9,9 @@ SortCS - A Multiple Object Tracker
 [![GitHub license](https://img.shields.io/badge/license-GNU-blue.svg)](https://github.com/keesschollaart81/SortCS/blob/master/LICENSE)
 [![BCH compliance](https://bettercodehub.com/edge/badge/keesschollaart81/SortCS?branch=master)](https://bettercodehub.com/)
 [![Code Coverage](https://sonarcloud.io/api/project_badges/measure?project=SortCS&metric=coverage)](https://sonarcloud.io/dashboard?id=SortCS)
-[![Maintainability](https://sonarcloud.io/api/project_badges/measure?project=SortCS&metric=sqale_rating)]()
-</div>
+[![Maintainability](https://sonarcloud.io/api/project_badges/measure?project=SortCS&metric=sqale_rating)
+
+</div> 
 
 SortCS is a 'Multiple Object Tracker' as described in [this paper](https://arxiv.org/abs/1602.00763), implemented in C#.
 
