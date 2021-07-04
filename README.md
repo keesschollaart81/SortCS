@@ -8,7 +8,7 @@ SortCS - A Multiple Object Tracker
 <div align="center">
     
 [![GitHub license](https://img.shields.io/badge/license-GNU-blue.svg)](https://github.com/keesschollaart81/SortCS/blob/master/LICENSE)
-[![BCH compliance](https://bettercodehub.com/edge/badge/keesschollaart81/SortCS?branch=master)](https://bettercodehub.com/)
+[![BCH compliance](https://bettercodehub.com/edge/badge/keesschollaart81/SortCS?branch=main)](https://bettercodehub.com/)
 [![Code Coverage](https://sonarcloud.io/api/project_badges/measure?project=SortCS&metric=coverage)](https://sonarcloud.io/dashboard?id=SortCS)
 [![Maintainability](https://sonarcloud.io/api/project_badges/measure?project=SortCS&metric=sqale_rating)]()
 

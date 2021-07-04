@@ -61,57 +61,14 @@ namespace SortCS.Evaluate
                     }
                 }
 
-                var iniString = File.ReadAllText(sequenceIniFile.FullName);
-                var parser = new IniDataParser();
-                var data = parser.Parse(iniString);
-                var benchmarkKey = data["Sequence"]["name"];
-
-                // GT file format (no header): <frame>, <id>, <bb_left>, <bb_top>, <bb_width>, <bb_height>, <conf>, <x>, <y>, <z>
-                var lines = await File.ReadAllLinesAsync(detFile.FullName);
-
-                var frames = new Dictionary<int, List<RectangleF>>();
-                var numberInfo = new NumberFormatInfo() { NumberDecimalSeparator = "." };
-                foreach (var line in lines)
-                {
-                    var parts = line.Split(',');
-                    var frameId = int.Parse(parts[0]);
-                    var gtTrackId = int.Parse(parts[1]);
-                    var bbLeft = float.Parse(parts[2], numberInfo);
-                    var bbTop = float.Parse(parts[3], numberInfo);
-                    var bbWidth = float.Parse(parts[4], numberInfo);
-                    var bbHeight = float.Parse(parts[5], numberInfo);
-                    var bbConf = float.Parse(parts[6], numberInfo);
-                    if (!frames.ContainsKey(frameId))
-                    {
-                        frames.Add(frameId, new List<RectangleF>());
-                    }
-                    if (bbConf > 0)
-                    {
-                        frames[frameId].Add(new RectangleF(bbLeft, bbTop, bbWidth, bbHeight));
-                    }
-                }
-
+                var benchmarkKey = GetBenchmarkKeyFromSeqIni(sequenceIniFile);
+                var frames = await GetFramesFromFile(detFile);
 
                 var path = Path.Combine(_destinationDir.ToString(), $"{benchmarkKey}.txt");
                 _logger.LogInformation("Read {framesCount} frames, output to {outputFile}", frames.Count, path);
-                using var file = new StreamWriter(path, false);
-
-                ITracker tracker = new SortTracker(_logger);
-                foreach (var frame in frames)
-                {
-                    var tracks = tracker.Track(frame.Value);
-                    foreach (var track in tracks)
-                    {
-                        if (track.State == TrackState.Started || track.State == TrackState.Active)
-                        {
-                            //var boxForLog = track.History.Last();
-                            var boxForLog = track.Prediction;
-                            //<frame>, <id>, <bb_left>, <bb_top>, <bb_width>, <bb_height>, <conf>, <x>, <y>, <z>
-                            var line = $"{frame.Key:0.},{track.TrackId:0.},{boxForLog.Left:0.},{boxForLog.Top:0.},{boxForLog.Width:0.},{boxForLog.Height:0.},1,-1,-1,-1";
-                            await file.WriteLineAsync(line);
-                        }
-                    }
-                }
+                
+                await FramesToDetectionsFile(frames, path);
+                
                 return frames.Count;
             }
             catch (Exception ex)
@@ -119,6 +76,67 @@ namespace SortCS.Evaluate
                 _logger.LogError(ex, "Exception evaluating benchmark {benchmarkFolder}: {ex.Message}", benchmarkFolder, ex.Message);
                 throw;
             }
+        }
+
+        private async Task FramesToDetectionsFile(Dictionary<int, List<RectangleF>> frames, string path)
+        {
+            using var file = new StreamWriter(path, false);
+
+            ITracker tracker = new SortTracker(_logger);
+            foreach (var frame in frames)
+            {
+                var tracks = tracker.Track(frame.Value);
+                foreach (var track in tracks)
+                {
+                    if (track.State == TrackState.Started || track.State == TrackState.Active)
+                    {
+                        //var boxForLog = track.History.Last();
+                        var boxForLog = track.Prediction;
+                        //<frame>, <id>, <bb_left>, <bb_top>, <bb_width>, <bb_height>, <conf>, <x>, <y>, <z>
+                        var line = $"{frame.Key:0.},{track.TrackId:0.},{boxForLog.Left:0.},{boxForLog.Top:0.},{boxForLog.Width:0.},{boxForLog.Height:0.},1,-1,-1,-1";
+                        await file.WriteLineAsync(line);
+                    }
+                }
+            } 
+        }
+
+        private static string GetBenchmarkKeyFromSeqIni(FileInfo sequenceIniFile)
+        {
+            var iniString = File.ReadAllText(sequenceIniFile.FullName);
+            var parser = new IniDataParser();
+            var data = parser.Parse(iniString);
+            var benchmarkKey = data["Sequence"]["name"];
+            return benchmarkKey;
+        }
+
+        private static async Task<Dictionary<int, List<RectangleF>>> GetFramesFromFile(FileInfo detFile)
+        {
+            // GT file format (no header): <frame>, <id>, <bb_left>, <bb_top>, <bb_width>, <bb_height>, <conf>, <x>, <y>, <z>
+            var lines = await File.ReadAllLinesAsync(detFile.FullName);
+
+            var frames = new Dictionary<int, List<RectangleF>>();
+            var numberInfo = new NumberFormatInfo() { NumberDecimalSeparator = "." };
+            foreach (var line in lines)
+            {
+                var parts = line.Split(',');
+                var frameId = int.Parse(parts[0]);
+                var gtTrackId = int.Parse(parts[1]);
+                var bbLeft = float.Parse(parts[2], numberInfo);
+                var bbTop = float.Parse(parts[3], numberInfo);
+                var bbWidth = float.Parse(parts[4], numberInfo);
+                var bbHeight = float.Parse(parts[5], numberInfo);
+                var bbConf = float.Parse(parts[6], numberInfo);
+                if (!frames.ContainsKey(frameId))
+                {
+                    frames.Add(frameId, new List<RectangleF>());
+                }
+                if (bbConf > 0)
+                {
+                    frames[frameId].Add(new RectangleF(bbLeft, bbTop, bbWidth, bbHeight));
+                }
+            }
+
+            return frames;
         }
     }
 }
