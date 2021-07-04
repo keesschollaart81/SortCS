@@ -42,10 +42,6 @@ jobs:
 
     - name: Test with dotnet
       run: dotnet test --no-restore --verbosity normal --logger trx --results-directory "TestResults-${{ matrix.os }}"
-   
-    - name: Create NuGet Package (Ubuntu only)
-      if: matrix.os == 'ubuntu-latest'
-      run: dotnet test -c Release -f net461 --no-build --no-restore 
 
     - name: Upload dotnet test results
       uses: actions/upload-artifact@v2
