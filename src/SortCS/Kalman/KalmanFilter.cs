@@ -1,7 +1,9 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SortCS.Kalman
 {
+    [SuppressMessage("Major Code Smell", "S3928:Parameter names used into ArgumentException constructors should match an existing one ", Justification = "Properties throw ArgumentException for 'value'")]
     internal class KalmanFilter
     {
         private readonly int _stateSize;
@@ -23,7 +25,7 @@ namespace SortCS.Kalman
             _identity = Matrix.Identity(stateSize);
             _alphaSq = 1.0d;
 
-            StateTransitionMatrix = _identity; // F 
+            StateTransitionMatrix = _identity; // F
             MeasurementFunction = new Matrix(_measurementSize, _stateSize); //  H
             UncertaintyCovariances = Matrix.Identity(_stateSize); // P
             MeasurementUncertainty = Matrix.Identity(_measurementSize); // R
@@ -67,7 +69,7 @@ namespace SortCS.Kalman
         public Matrix MeasurementUncertainty
         {
             get => _measurementUncertainty;
-            init=>_measurementUncertainty = value.Rows == _measurementSize && value.Columns == _measurementSize
+            init => _measurementUncertainty = value.Rows == _measurementSize && value.Columns == _measurementSize
                 ? value
                 : throw new ArgumentException($"Matrix must be of size {_measurementSize}x{_measurementSize}.", nameof(value));
         }
@@ -100,9 +102,10 @@ namespace SortCS.Kalman
             processNoiseMatrix ??= ProcessUncertainty;
 
             _currentState = stateTransitionMatrix.Dot(CurrentState);
-            _uncertaintyCovariances = _alphaSq * stateTransitionMatrix * UncertaintyCovariances * stateTransitionMatrix.Transposed + processNoiseMatrix;
+            _uncertaintyCovariances = (_alphaSq * stateTransitionMatrix * UncertaintyCovariances * stateTransitionMatrix.Transposed) + processNoiseMatrix;
         }
 
+        [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1312:Variable names should begin with lower-case letter", Justification = "These are well known abbreviations for the Kalman Filter")]
         public void Update(Vector measurement, Matrix measurementNoise = null, Matrix measurementFunction = null)
         {
             measurementNoise ??= MeasurementUncertainty;

@@ -1,5 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 
 namespace SortCS.Tests
@@ -12,36 +13,36 @@ namespace SortCS.Tests
         {
             // Arrange
             var mot15Track = new List<Frame>{
-                new Frame(new List<BoundingBox>{
-                    new BoundingBox(1, "person", 1703,385,157,339, 1),
-                    new BoundingBox(1, "person", 1293,455,83,213,  1),
-                    new BoundingBox(1, "person", 259,449,101,261,  1),
-                    new BoundingBox(1, "person", 1253,529,55,127,  1)
+                new Frame(new List<RectangleF>{
+                    new RectangleF(1703,385,157,339),
+                    new RectangleF(1293,455,83,213),
+                    new RectangleF(259,449,101,261),
+                    new RectangleF(1253,529,55,127)
                 }),
-                new Frame(new List<BoundingBox>{
-                    new BoundingBox(1, "person", 1699,383,159,341, 1),
-                    new BoundingBox(1, "person", 1293,455,83,213,  1),
-                    new BoundingBox(1, "person", 261,447,101,263,  1),
-                    new BoundingBox(1, "person", 1253,529,55,127,  1)
+                new Frame(new List<RectangleF>{
+                    new RectangleF(1699,383,159,341),
+                    new RectangleF(1293,455,83,213),
+                    new RectangleF(261,447,101,263),
+                    new RectangleF(1253,529,55,127)
                 }),
-                new Frame(new List<BoundingBox>{
-                    new BoundingBox(1, "person", 1697,383,159,343, 1),
-                    new BoundingBox(1, "person", 1293,455,83,213,  1),
-                    new BoundingBox(1, "person", 263,447,101,263,  1),
-                    new BoundingBox(1, "person", 1255,529,55,127,  1),
-                    new BoundingBox(1, "person", 429,300,55,127,  1)
+                new Frame(new List<RectangleF>{
+                    new RectangleF(1697,383,159,343),
+                    new RectangleF(1293,455,83,213),
+                    new RectangleF(263,447,101,263),
+                    new RectangleF(1255,529,55,127),
+                    new RectangleF(429,300,55,127)
                 }),
-                new Frame(new List<BoundingBox>{
-                    new BoundingBox(1, "person", 1695,383,159,343, 1),
-                    new BoundingBox(1, "person", 1293,455,83,213,  1),
-                    new BoundingBox(1, "person", 265,447,101,263,  1),
-                    new BoundingBox(1, "person", 1257,529,55,127,  1)
+                new Frame(new List<RectangleF>{
+                    new RectangleF(1695,383,159,343),
+                    new RectangleF(1293,455,83,213),
+                    new RectangleF(265,447,101,263),
+                    new RectangleF(1257,529,55,127)
                 }),
-                new Frame(new List<BoundingBox>{
-                    new BoundingBox(1, "person", 1693,381,159,347, 1),
-                    new BoundingBox(1, "person", 1295,455,83,213,  1),
-                    new BoundingBox(1, "person", 267,447,101,263,  1),
-                    new BoundingBox(1, "person", 1259, 529,55,129, 1)
+                new Frame(new List<RectangleF>{
+                    new RectangleF(1693,381,159,347),
+                    new RectangleF(1295,455,83,213),
+                    new RectangleF(267,447,101,263),
+                    new RectangleF(1259, 529,55,129)
                 }),
             };
 
@@ -64,35 +65,35 @@ namespace SortCS.Tests
         {
             // Arrange 
             var crossingTrack = new List<Frame>{
-                new Frame(new List<BoundingBox>{
-                    new BoundingBox(1, "person", 0.8f, 0.3f, 0.1f, 0.1f, 1),
-                    new BoundingBox(1, "person", 0.1f, 0.1f, 0.15f, 0.15f, 1)
+                new Frame(new List<RectangleF>{
+                    new RectangleF(0.8f, 0.3f, 0.1f, 0.1f),
+                    new RectangleF(0.1f, 0.1f, 0.15f, 0.15f)
                 }),
-                new Frame(new List<BoundingBox>{
-                    new BoundingBox(1, "person", 0.8f, 0.35f, 0.1f, 0.1f, 1),
-                    new BoundingBox(1, "person", 0.2f, 0.2f, 0.15f, 0.15f, 1)
+                new Frame(new List<RectangleF>{
+                    new RectangleF(0.8f, 0.35f, 0.1f, 0.1f),
+                    new RectangleF(0.2f, 0.2f, 0.15f, 0.15f)
                 }),
-                new Frame(new List<BoundingBox>{
-                    new BoundingBox(1, "person", 0.3f, 0.3f, 0.15f, 0.15f, 1),
-                    new BoundingBox(1, "person", 0.8f, 0.4f, 0.1f, 0.1f, 1)
+                new Frame(new List<RectangleF>{
+                    new RectangleF(0.3f, 0.3f, 0.15f, 0.15f),
+                    new RectangleF(0.8f, 0.4f, 0.1f, 0.1f)
                 }),
-                new Frame(new List<BoundingBox>{
-                    new BoundingBox(1, "person", 0.4f, 0.4f, 0.15f, 0.15f, 1),
-                    new BoundingBox(1, "person", 0.8f, 0.45f, 0.1f, 0.1f, 1)
+                new Frame(new List<RectangleF>{
+                    new RectangleF(0.4f, 0.4f, 0.15f, 0.15f),
+                    new RectangleF(0.8f, 0.45f, 0.1f, 0.1f)
                 }),
-                new Frame(new List<BoundingBox>{
-                    new BoundingBox(1, "person", 0.5f, 0.5f, 0.15f, 0.15f, 1),
-                    new BoundingBox(1, "person", 0.8f, 0.5f, 0.1f, 0.1f, 1)
+                new Frame(new List<RectangleF>{
+                    new RectangleF(0.5f, 0.5f, 0.15f, 0.15f),
+                    new RectangleF(0.8f, 0.5f, 0.1f, 0.1f)
                 }),
-                new Frame(new List<BoundingBox>()),
-                new Frame(new List<BoundingBox>()),
-                new Frame(new List<BoundingBox>()),
-                new Frame(new List<BoundingBox>()),
-                new Frame(new List<BoundingBox>())
+                new Frame(new List<RectangleF>()),
+                new Frame(new List<RectangleF>()),
+                new Frame(new List<RectangleF>()),
+                new Frame(new List<RectangleF>()),
+                new Frame(new List<RectangleF>())
             };
             var tracks = Enumerable.Empty<Track>();
 
-            var sut = new SortTracker();
+            var sut = new SortTracker(0.2f);
 
             // Act
             foreach (var frame in crossingTrack)
@@ -112,38 +113,9 @@ namespace SortCS.Tests
             // Assert
             Assert.AreEqual(TrackState.Ended, complexTrack1.State);
             Assert.AreEqual(TrackState.Ended, complexTrack2.State);
-            Assert.AreEqual(0.5, lastBoxOfTrack2.Box.Top, 0.001);
+            Assert.AreEqual(0.5, lastBoxOfTrack2.Top, 0.00);
             Assert.AreEqual(5, complexTrack1.History.Count);
             Assert.AreEqual(5, complexTrack2.History.Count);
-        }
-
-
-        [TestMethod]
-        public void SimpleTracker_ThisNeverEnds()
-        {
-            // Arrange 
-            var crossingTrack = new List<Frame>{
-                new Frame(new List<BoundingBox>{
-                    new BoundingBox(1, "person", 0.8f, 0.3f, 0.1f, 0.1f, 1),
-                    new BoundingBox(1, "person", 0.1f, 0.1f, 0.15f, 0.15f, 1)
-                }),
-                new Frame(new List<BoundingBox>{
-                    new BoundingBox(1, "person", 0.8f, 0.35f, 0.1f, 0.1f, 1),
-                    new BoundingBox(1, "person", 0.9f, 0.9f, 0.15f, 0.15f, 1),
-                    new BoundingBox(1, "person", 0.2f, 0.2f, 0.15f, 0.15f, 1)
-                }), 
-                new Frame(new List<BoundingBox>())
-            };
-
-            var sut = new SortTracker();
-
-            // Act
-            foreach (var frame in crossingTrack)
-            {
-                var result = sut.Track(frame.BoundingBoxes).ToArray();
-                // for frame 2, we never get here because `matrix.FindAssignments()` gets into a infinite loop
-            }
-
         }
     }
 }

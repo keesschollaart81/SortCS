@@ -1,11 +1,8 @@
-using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Xml.Schema;
 using HungarianAlgorithm;
+using Microsoft.Extensions.Logging;
 using SortCS.Kalman;
 
 namespace SortCS
@@ -13,45 +10,49 @@ namespace SortCS
     public class SortTracker : ITracker
     {
         private readonly Dictionary<int, (Track Track, KalmanBoxTracker Tracker)> _trackers;
-        private int _frameCount;
-        private int _trackerIndex = 1;
+        private readonly ILogger<SortTracker> _logger;
+        private int _trackerIndex = 1; // MOT Evaluations requires a start index of 1
 
-        public SortTracker()
+        public SortTracker(float iouThreshold = 0.3f, int maxMisses = 3)
         {
             _trackers = new Dictionary<int, (Track, KalmanBoxTracker)>();
-            _frameCount = 0;
+            IouThreshold = iouThreshold;
         }
 
-        public int MaxAge { get; init; } = 1;
-
-        public int MinHits { get; init; } = 3;
-
-        public float IouThreshold { get; init; } = 0.3f;
-
-        public IEnumerable<Track> Track(IEnumerable<BoundingBox> boxes)
+        public SortTracker(ILogger<SortTracker> logger, float iouThreshold = 0.3f, int maxMisses = 3)
+            : this(iouThreshold, maxMisses)
         {
-            _frameCount++;
+            _logger = logger;
+        }
 
-            var trackedBoxes = new Dictionary<int, BoundingBox>();
+        public float IouThreshold { get; private init; }
+
+        public int MaxMisses { get; private init; }
+
+        public IEnumerable<Track> Track(IEnumerable<RectangleF> boxes)
+        {
+            var predictions = new Dictionary<int, RectangleF>();
 
             foreach (var tracker in _trackers)
             {
-                var box = tracker.Value.Tracker.Predict();
-                trackedBoxes.Add(tracker.Key, box);
+                var prediction = tracker.Value.Tracker.Predict();
+                predictions.Add(tracker.Key, prediction);
             }
 
             var boxesArray = boxes.ToArray();
 
-            var (matchedBoxes, unmatchedBoxes) = MatchDetectionsWithTrackers(boxesArray, trackedBoxes.Values);
+            var (matchedBoxes, unmatchedBoxes) = MatchDetectionsWithPredictions(boxesArray, predictions.Values);
 
             var activeTrackids = new HashSet<int>();
             foreach (var item in matchedBoxes)
             {
-                var track = _trackers[trackedBoxes.ElementAt(item.Key).Key];
+                var prediction = predictions.ElementAt(item.Key);
+                var track = _trackers[prediction.Key];
                 track.Track.History.Add(item.Value);
                 track.Track.Misses = 0;
                 track.Track.State = TrackState.Active;
                 track.Tracker.Update(item.Value);
+                track.Track.Prediction = prediction.Value;
 
                 activeTrackids.Add(track.Track.TrackId);
             }
@@ -64,7 +65,7 @@ namespace SortCS
                 missedTrack.Value.Track.State = TrackState.Ending;
             }
 
-            var toRemove = _trackers.Where(x => x.Value.Track.Misses > MaxAge).ToList();
+            var toRemove = _trackers.Where(x => x.Value.Track.Misses > MaxMisses).ToList();
             foreach (var tr in toRemove)
             {
                 tr.Value.Track.State = TrackState.Ended;
@@ -76,14 +77,13 @@ namespace SortCS
                 var track = new Track
                 {
                     TrackId = _trackerIndex++,
-                    Class = unmatchedBox.Class,
-                    ClassName = unmatchedBox.ClassName,
-                    History = new List<BoundingBox>() { unmatchedBox },
+                    History = new List<RectangleF>() { unmatchedBox },
                     Misses = 0,
                     State = TrackState.Started,
-                    TotalMisses = 0
+                    TotalMisses = 0,
+                    Prediction = unmatchedBox
                 };
-                _trackers.Add(track.TrackId,(track, new KalmanBoxTracker(unmatchedBox)));
+                _trackers.Add(track.TrackId, (track, new KalmanBoxTracker(unmatchedBox)));
             }
 
             var result = _trackers.Select(x => x.Value.Track).Concat(toRemove.Select(y => y.Value.Track));
@@ -93,7 +93,7 @@ namespace SortCS
 
         private void Log(IEnumerable<Track> tracks)
         {
-            if (!tracks.Any())
+            if (_logger == null || !tracks.Any())
             {
                 return;
             }
@@ -106,36 +106,36 @@ namespace SortCS
             {
                 var tracksStr = tracks.Select(x => $"{x.TrackId}{(x.State == TrackState.Active ? null : $": {x.State}")}");
 
-                Console.WriteLine($"Tracks: [{string.Join(",", tracksStr)}], Longest: {longest}, Ended: {ended}");
+                _logger.LogDebug("Tracks: [{tracks}], Longest: {longest}, Ended: {ended}", string.Join(",", tracksStr), longest, ended);
             }
         }
 
-        private (Dictionary<int, BoundingBox> Matched, ICollection<BoundingBox> Unmatched) MatchDetectionsWithTrackers(
-            ICollection<BoundingBox> boxes,
-            ICollection<BoundingBox> trackers)
+        private (Dictionary<int, RectangleF> Matched, ICollection<RectangleF> Unmatched) MatchDetectionsWithPredictions(
+            ICollection<RectangleF> boxes,
+            ICollection<RectangleF> trackPredictions)
         {
-            if (trackers.Count == 0)
+            if (trackPredictions.Count == 0)
             {
                 return (new(), boxes);
             }
 
-            var matrix = boxes.SelectMany((box) => trackers.Select((tracker) =>
+            var matrix = boxes.SelectMany((box) => trackPredictions.Select((trackPrediction) =>
             {
-                var intersection = RectangleF.Intersect(box.Box, tracker.Box);
-                var union = RectangleF.Union(box.Box, tracker.Box);
+                var intersection = RectangleF.Intersect(box, trackPrediction);
+                var union = RectangleF.Union(box, trackPrediction);
                 var intersectionArea = (double)(intersection.Width * intersection.Height);
                 var unionArea = (double)(union.Width * union.Height);
 
                 var iou = unionArea < double.Epsilon ? 0 : intersectionArea / unionArea;
 
                 return (int)(100 * -iou);
-            })).ToArray(boxes.Count, trackers.Count);
+            })).ToArray(boxes.Count, trackPredictions.Count);
 
-            if (boxes.Count > trackers.Count)
+            if (boxes.Count > trackPredictions.Count)
             {
-                var extra = new int[boxes.Count - trackers.Count];
+                var extra = new int[boxes.Count - trackPredictions.Count];
                 matrix = Enumerable.Range(0, boxes.Count)
-                    .SelectMany(row => Enumerable.Range(0, trackers.Count).Select(col => matrix[row, col]).Concat(extra))
+                    .SelectMany(row => Enumerable.Range(0, trackPredictions.Count).Select(col => matrix[row, col]).Concat(extra))
                     .ToArray(boxes.Count, boxes.Count);
             }
 
@@ -143,13 +143,13 @@ namespace SortCS
             var minimalThreshold = (int)(-IouThreshold * 100);
             var boxTrackerMapping = matrix.FindAssignments()
                 .Select((ti, bi) => (bi, ti))
-                .Where(bt => bt.ti < trackers.Count && original[bt.bi, bt.ti] <= minimalThreshold)
+                .Where(bt => bt.ti < trackPredictions.Count && original[bt.bi, bt.ti] <= minimalThreshold)
                 .ToDictionary(bt => bt.bi, bt => bt.ti);
 
             var unmatchedBoxes = boxes.Where((_, index) => !boxTrackerMapping.ContainsKey(index)).ToArray();
             var matchedBoxes = boxes.Select((box, index) => boxTrackerMapping.TryGetValue(index, out var tracker)
-                    ? (Tracker: tracker, Box: box)
-                    : (Tracker: -1, Box: null))
+                   ? (Tracker: tracker, Box: box)
+                   : (Tracker: -1, Box: RectangleF.Empty))
                 .Where(tb => tb.Tracker != -1)
                 .ToDictionary(tb => tb.Tracker, tb => tb.Box);
 

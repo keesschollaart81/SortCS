@@ -1,18 +1,31 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Net.Http;
 using System.IO.Compression;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace SortCS.Evaluate
 {
     class Program
     {
+        private static ILogger<Program> _logger;
+
         static async Task<int> Main(string[] args)
         {
+            var services = new ServiceCollection();
+            services.AddLogging(loggerBuilder =>
+            {
+                loggerBuilder.ClearProviders();
+                loggerBuilder.AddConsole();
+            });
+            var serviceProvider = services.BuildServiceProvider();
+
+            _logger = serviceProvider.GetService<ILogger<Program>>();
+
             var rootCommand = new RootCommand
             {
                 new Option<DirectoryInfo>(
@@ -25,7 +38,7 @@ namespace SortCS.Evaluate
                     description: "Name of the benchmark, e.g. MOT15, MO16, MOT17 or MOT20 (default : MOT20)"),
                 new Option<string>(
                     "--split-to-eval",
-                    getDefaultValue: () => "train",
+                    getDefaultValue: () => "test",
                     description: "Data split on which to evalute e.g. train, test (default : train)"),
             };
 
@@ -36,7 +49,7 @@ namespace SortCS.Evaluate
                 {
                     await DownloadTrackEvalExampleAsync(dataFolder);
                 }
-                var sortCsEvaluator = new SortCsEvaluator(dataFolder, benchmark, splitToEval);
+                var sortCsEvaluator = new SortCsEvaluator(dataFolder, benchmark, splitToEval, serviceProvider.GetService<ILogger<SortTracker>>());
                 await sortCsEvaluator.EvaluateAsync();
             });
 
@@ -48,14 +61,15 @@ namespace SortCS.Evaluate
             var dataZipUrl = "https://omnomnom.vision.rwth-aachen.de/data/TrackEval/data.zip";
             groundTruthFolder.Create();
             var targetZipFile = Path.Combine(groundTruthFolder.ToString(), "..", "data.zip");
-            Console.WriteLine(Path.GetFullPath(targetZipFile));
+            _logger.LogInformation(Path.GetFullPath(targetZipFile));
 
-            Console.WriteLine($"Downloading data.zip (150mb) from {dataZipUrl} to {targetZipFile}");
+            _logger.LogInformation($"Downloading data.zip (150mb) from {dataZipUrl} to {targetZipFile}");
             using var httpClient = new HttpClient();
             var zipStream = await httpClient.GetStreamAsync(dataZipUrl);
             using var fs = new FileStream(targetZipFile, FileMode.CreateNew);
             await zipStream.CopyToAsync(fs);
             ZipFile.ExtractToDirectory(targetZipFile, Path.Combine(groundTruthFolder.ToString(), ".."));
+            _logger.LogInformation("data.zip downloaded & extracted");
         }
     }
 }

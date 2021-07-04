@@ -1,18 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 
 namespace SortCS.Kalman
 {
     internal class KalmanBoxTracker
     {
         private readonly KalmanFilter _filter;
-        private readonly List<BoundingBox> _history = new List<BoundingBox>();
-        private int _timeSinceUpdate;
-        private int _hits;
-        private int _hitStreak;
-        private int _age;
 
-        public KalmanBoxTracker(BoundingBox box)
+        public KalmanBoxTracker(RectangleF box)
         {
             _filter = new KalmanFilter(7, 4)
             {
@@ -68,16 +64,12 @@ namespace SortCS.Kalman
             };
         }
 
-        public void Update(BoundingBox box)
+        public void Update(RectangleF box)
         {
-            _timeSinceUpdate = 0;
-            _history.Clear();
-            _hits++;
-            _hitStreak++;
             _filter.Update(ToMeasurement(box));
         }
 
-        public BoundingBox Predict()
+        public RectangleF Predict()
         {
             if (_filter.CurrentState[6] + _filter.CurrentState[2] <= 0)
             {
@@ -87,40 +79,28 @@ namespace SortCS.Kalman
             }
 
             _filter.Predict();
-            _age++;
-
-            if (_timeSinceUpdate > 0)
-            {
-                _hitStreak = 0;
-            }
-
-            _timeSinceUpdate++;
 
             var prediction = ToBoundingBox(_filter.CurrentState);
-
-            _history.Add(prediction);
 
             return prediction;
         }
 
-        private static Vector ToMeasurement(BoundingBox box)
+        private static Vector ToMeasurement(RectangleF box)
         {
-            return new Vector(box.Center.X, box.Center.Y, box.Box.Width * (double)box.Box.Height, box.Box.Width / (double)box.Box.Height);
+            var center = new PointF(box.Left + (box.Width / 2f), box.Top + (box.Height / 2f));
+            return new Vector(center.X, center.Y, box.Width * (double)box.Height, box.Width / (double)box.Height);
         }
 
-        private static BoundingBox ToBoundingBox(Vector currentState)
+        private static RectangleF ToBoundingBox(Vector currentState)
         {
             var w = Math.Sqrt(currentState[2] * currentState[3]);
             var h = currentState[2] / w;
 
-            return new BoundingBox(
-                0,
-                string.Empty,
+            return new RectangleF(
                 (float)(currentState[0] - (w / 2)),
                 (float)(currentState[1] - (h / 2)),
                 (float)w,
-                (float)h,
-                0);
+                (float)h);
         }
     }
 }

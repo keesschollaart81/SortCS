@@ -3,7 +3,7 @@
   <PropertyGroup> 
     <TargetFrameworks>netstandard2.0; net5.0</TargetFrameworks>
     <LangVersion>preview</LangVersion>
-    <!-- <TreatWarningsAsErrors>true</TreatWarningsAsErrors>  -->
+     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>  
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Kees Schollaart, Maarten van Sambeek</Authors>
     <Company>Vision Intelligence</Company>
@@ -26,10 +26,17 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageIcon>icon.png</PackageIcon>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
   
   <ItemGroup>
     <PackageReference Include="HungarianAlgorithm" Version="2.2.8" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
     <PackageReference Include="System.Drawing.Common" Version="5.0.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
   </ItemGroup>
@@ -37,6 +44,6 @@
   <Import Project="../../analyzers.targets" />
 
   <ItemGroup>
-    <None Include="./icon.png" Pack="true" PackagePath=""/>
+    <None Include="./icon.png" Pack="true" PackagePath="" />
   </ItemGroup>
 </Project>

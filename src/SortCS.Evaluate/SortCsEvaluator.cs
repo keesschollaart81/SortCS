@@ -5,6 +5,9 @@ using System.Linq;
 using System.Collections.Generic;
 using IniParser;
 using System.Globalization;
+using System.Drawing;
+using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 
 namespace SortCS.Evaluate
 {
@@ -13,8 +16,9 @@ namespace SortCS.Evaluate
         private readonly DirectoryInfo _dataFolderMot;
 
         private readonly DirectoryInfo _destinationDir;
+        private readonly ILogger<SortTracker> _logger;
 
-        public SortCsEvaluator(DirectoryInfo dataFolder, string benchmark, string splitToEval)
+        public SortCsEvaluator(DirectoryInfo dataFolder, string benchmark, string splitToEval, ILogger<SortTracker> logger)
         {
             _dataFolderMot = new DirectoryInfo(Path.Combine($"{dataFolder}", "gt", "mot_challenge", $"{benchmark}-{splitToEval}"));
             _destinationDir = new DirectoryInfo(Path.Combine($"{dataFolder}", "trackers", "mot_challenge", $"{benchmark}-{splitToEval}", "SortCS", "data"));
@@ -23,29 +27,38 @@ namespace SortCS.Evaluate
                 _destinationDir.Delete(true);
             }
             _destinationDir.Create();
+            _logger = logger;
         }
 
         public async Task EvaluateAsync()
         {
-            var tasks = new List<Task>();
+            var stopwatch = Stopwatch.StartNew();
+            var tasks = new List<Task<int>>();
             foreach (var benchmarkDir in _dataFolderMot.GetDirectories())
             {
                 tasks.Add(EvaluateBenchMark(benchmarkDir));
             }
             await Task.WhenAll(tasks);
+            stopwatch.Stop();
+            var totalFrames = tasks.Sum(x => x.Result);
+            _logger.LogInformation("Finished evaluating {totalFrames} frames in {totalSeconds:0.} seconds ({fps} fps)", totalFrames, stopwatch.Elapsed.TotalSeconds, totalFrames / stopwatch.Elapsed.TotalSeconds);
         }
 
-        private async Task EvaluateBenchMark(DirectoryInfo benchmarkFolder)
+        private async Task<int> EvaluateBenchMark(DirectoryInfo benchmarkFolder)
         {
             try
             {
-                var gtFile = new FileInfo(Path.Combine($"{benchmarkFolder}", "gt", "gt.txt"));
+                var detFile = new FileInfo(Path.Combine($"{benchmarkFolder}", "gt", "gt.txt"));
                 var sequenceIniFile = new FileInfo(Path.Combine($"{benchmarkFolder}", "seqinfo.ini"));
 
-                if (!gtFile.Exists)
+                if (!detFile.Exists)
                 {
-                    Console.WriteLine($"Benchmark folder {benchmarkFolder} has no GroundTruth file (gt/gt.txt)");
-                    return;
+                    detFile = new FileInfo(Path.Combine($"{benchmarkFolder}", "det", "det.txt"));
+                    if (!detFile.Exists)
+                    {
+                        _logger.LogWarning("Benchmark folder {benchmarkFolder} has no GroundTruth file (gt/gt.txt)", benchmarkFolder);
+                        return 0;
+                    }
                 }
 
                 var iniString = File.ReadAllText(sequenceIniFile.FullName);
@@ -54,9 +67,9 @@ namespace SortCS.Evaluate
                 var benchmarkKey = data["Sequence"]["name"];
 
                 // GT file format (no header): <frame>, <id>, <bb_left>, <bb_top>, <bb_width>, <bb_height>, <conf>, <x>, <y>, <z>
-                var lines = await File.ReadAllLinesAsync(gtFile.FullName);
+                var lines = await File.ReadAllLinesAsync(detFile.FullName);
 
-                var frames = new Dictionary<int, List<BoundingBox>>();
+                var frames = new Dictionary<int, List<RectangleF>>();
                 var numberInfo = new NumberFormatInfo() { NumberDecimalSeparator = "." };
                 foreach (var line in lines)
                 {
@@ -70,22 +83,21 @@ namespace SortCS.Evaluate
                     var bbConf = float.Parse(parts[6], numberInfo);
                     if (!frames.ContainsKey(frameId))
                     {
-                        frames.Add(frameId, new List<BoundingBox>());
+                        frames.Add(frameId, new List<RectangleF>());
                     }
                     if (bbConf > 0)
                     {
-                        frames[frameId].Add(new BoundingBox(0, "", bbLeft, bbTop, bbWidth, bbHeight, bbConf));
+                        frames[frameId].Add(new RectangleF(bbLeft, bbTop, bbWidth, bbHeight));
                     }
                 }
 
-                Console.WriteLine($"{frames.Count}");
 
                 var path = Path.Combine(_destinationDir.ToString(), $"{benchmarkKey}.txt");
-                Console.WriteLine(path);
+                _logger.LogInformation("Read {framesCount} frames, output to {outputFile}", frames.Count, path);
                 using var file = new StreamWriter(path, false);
 
                 //ITracker tracker = new SimpleBoxTracker(); // or SortTracker
-                ITracker tracker = new SortTracker();
+                ITracker tracker = new SortTracker(_logger);
                 foreach (var frame in frames)
                 {
                     var tracks = tracker.Track(frame.Value);
@@ -93,17 +105,19 @@ namespace SortCS.Evaluate
                     {
                         if (track.State == TrackState.Started || track.State == TrackState.Active)
                         {
-                            var lastBox = track.History.Last();
+                            //var boxForLog = track.History.Last();
+                            var boxForLog = track.Prediction;
                             //<frame>, <id>, <bb_left>, <bb_top>, <bb_width>, <bb_height>, <conf>, <x>, <y>, <z>
-                            var line = $"{frame.Key:0.},{track.TrackId:0.},{lastBox.Box.Left:0.},{lastBox.Box.Top:0.},{lastBox.Box.Width:0.},{lastBox.Box.Height:0.},1,-1,-1,-1";
+                            var line = $"{frame.Key:0.},{track.TrackId:0.},{boxForLog.Left:0.},{boxForLog.Top:0.},{boxForLog.Width:0.},{boxForLog.Height:0.},1,-1,-1,-1";
                             await file.WriteLineAsync(line);
                         }
                     }
                 }
+                return frames.Count;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Exception evaluating benchmark {benchmarkFolder}: {ex.Message}");
+                _logger.LogError(ex, "Exception evaluating benchmark {benchmarkFolder}: {ex.Message}", benchmarkFolder, ex.Message);
                 throw;
             }
         }

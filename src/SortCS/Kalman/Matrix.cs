@@ -10,32 +10,6 @@ namespace SortCS.Kalman
     {
         private readonly double[,] _values;
 
-        internal class MatrixDisplay
-        {
-            public MatrixDisplay(Matrix matrix)
-            {
-                Cells = Enumerable.Range(0, matrix.Rows)
-                    .Select(row =>
-                        new Cell(string.Join("  ", Enumerable.Range(0, matrix.Columns).Select(col => matrix._values[row, col]))))
-                    .ToArray();
-            }
-
-            [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-            public Cell[] Cells { get; }
-
-            [DebuggerDisplay("{" + nameof(Value) + ", nq}")]
-            internal class Cell
-            {
-                public Cell(string value)
-                {
-                    Value = value;
-                }
-
-                public string Value { get; }
-            }
-        }
-
-
         public Matrix(double[,] values)
         {
             _values = values;
@@ -43,7 +17,7 @@ namespace SortCS.Kalman
             Columns = _values.GetLength(1);
         }
 
-        public Matrix(int[,] values) 
+        public Matrix(int[,] values)
             : this(values.GetLength(0), values.GetLength(1))
         {
             for (var row = 0; row < Rows; row++)
@@ -108,6 +82,7 @@ namespace SortCS.Kalman
                 return new Matrix(result);
             }
         }
+
         private string DebuggerDisplay => ToString();
 
         public static Matrix operator +(Matrix first, Matrix second)
@@ -327,6 +302,31 @@ namespace SortCS.Kalman
             }
 
             return (result, index, d);
+        }
+
+        internal class MatrixDisplay
+        {
+            public MatrixDisplay(Matrix matrix)
+            {
+                Cells = Enumerable.Range(0, matrix.Rows)
+                    .Select(row =>
+                        new Cell(string.Join("  ", Enumerable.Range(0, matrix.Columns).Select(col => matrix._values[row, col]))))
+                    .ToArray();
+            }
+
+            [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
+            public Cell[] Cells { get; }
+
+            [DebuggerDisplay("{" + nameof(Value) + ", nq}")]
+            internal class Cell
+            {
+                public Cell(string value)
+                {
+                    Value = value;
+                }
+
+                public string Value { get; }
+            }
         }
     }
 }
