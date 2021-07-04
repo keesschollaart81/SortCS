@@ -19,8 +19,7 @@
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <RepositoryType>Github</RepositoryType>
     <RepositoryUrl>https://github.com/keesschollaart81/SortCS.git</RepositoryUrl>
-    <!--<PackageLicenseFile>LICENSE</PackageLicenseFile>-->
-    <PackageLicenseExpression>GNU</PackageLicenseExpression>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <NeutralLanguage>en</NeutralLanguage>
     <PackageProjectUrl>https://github.com/keesschollaart81/SortCS</PackageProjectUrl>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -46,6 +45,6 @@
 
   <ItemGroup>
     <None Include="./icon.png" Pack="true" PackagePath="" />
-    <!--<None Include="../../LICENSE" Pack="true" PackagePath=""/>-->
+    <None Include="../../LICENSE.txt" Pack="true" PackagePath="LICENSE.txt"/>
   </ItemGroup>
 </Project>
