@@ -1,0 +1,7 @@
+component_depth: 2
+languages:
+- csharp
+default_excludes: true
+#exclude:
+#- /.vscode/.*
+#- /src/SortCS/Test.cs
