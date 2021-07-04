@@ -17,6 +17,7 @@ namespace SortCS
         {
             _trackers = new Dictionary<int, (Track, KalmanBoxTracker)>();
             IouThreshold = iouThreshold;
+            MaxMisses = maxMisses;
         }
 
         public SortTracker(ILogger<SortTracker> logger, float iouThreshold = 0.3f, int maxMisses = 3)
@@ -121,12 +122,7 @@ namespace SortCS
 
             var matrix = boxes.SelectMany((box) => trackPredictions.Select((trackPrediction) =>
             {
-                var intersection = RectangleF.Intersect(box, trackPrediction);
-                var union = RectangleF.Union(box, trackPrediction);
-                var intersectionArea = (double)(intersection.Width * intersection.Height);
-                var unionArea = (double)(union.Width * union.Height);
-
-                var iou = unionArea < double.Epsilon ? 0 : intersectionArea / unionArea;
+                var iou = IoU(box, trackPrediction);
 
                 return (int)(100 * -iou);
             })).ToArray(boxes.Count, trackPredictions.Count);
@@ -154,6 +150,19 @@ namespace SortCS
                 .ToDictionary(tb => tb.Tracker, tb => tb.Box);
 
             return (matchedBoxes, unmatchedBoxes);
+        }
+
+        private double IoU(RectangleF a, RectangleF b)
+        {
+            RectangleF intersection = RectangleF.Intersect(a, b);
+            if (intersection.IsEmpty)
+            {
+                return 0;
+            }
+
+            double intersectArea = intersection.Width * intersection.Height;
+            double unionArea = (a.Width * a.Height) + (b.Width * b.Height) - intersectArea;
+            return intersectArea / (unionArea + 1e-5);
         }
     }
 }

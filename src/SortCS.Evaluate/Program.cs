@@ -38,7 +38,7 @@ namespace SortCS.Evaluate
                     description: "Name of the benchmark, e.g. MOT15, MO16, MOT17 or MOT20 (default : MOT20)"),
                 new Option<string>(
                     "--split-to-eval",
-                    getDefaultValue: () => "test",
+                    getDefaultValue: () => "train",
                     description: "Data split on which to evalute e.g. train, test (default : train)"),
             };
 

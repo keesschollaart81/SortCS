@@ -1,4 +1,4 @@
-# SortCS [ Careful: work in progress ]
+# SortCS
 
 SortCS is a 'Multiple Object Tracker' as described in [this paper](https://arxiv.org/abs/1602.00763), implemented in C#.
 
@@ -11,26 +11,26 @@ SortCS is a 'Multiple Object Tracker' as described in [this paper](https://arxiv
 ```cs
 using SortCS;
 
-ITracker tracker = new SortTracker();
+ITracker tracker = new SortTracker(iouThreshold = 0.3f, maxMisses = 3);
 tracker.Track(new[]
 {
-    new BoundingBox(1, "person", 1695,383,159,343, 1),
-    new BoundingBox(1, "person", 1293,455,83,213,  1)
+    new RectangleF(1695,383,159,343),
+    new RectangleF(1293,455,83,213)
 });
 tracker.Track(new[]
 {
-    new BoundingBox(1, "person", 1699,383,159,341, 1),
-    new BoundingBox(1, "person", 1293,455,83,213,  1)
+    new RectangleF(1699,383,159,341),
+    new RectangleF(1293,455,83,213)
 });
 tracker.Track(new[]
 {
-    new BoundingBox(1, "person", 1697,383,159,343, 1),
-    new BoundingBox(1, "person", 1293,455,83,213,  1)
+    new RectangleF(1697,383,159,343),
+    new RectangleF(1293,455,83,213)
 });
 var tracks = tracker.Track(new[]
 {
-    new BoundingBox(1, "person", 1695,383,159,343, 1),
-    new BoundingBox(1, "person", 1293,455,83,213,  1)
+    new RectangleF(1695,383,159,343),
+    new RectangleF(1293,455,83,213)
 });
 
 Assert.AreEqual(2 tracks.Count());
@@ -50,44 +50,44 @@ Brief instructions:
 - Run TrackEval (according to their [readme](https://github.com/JonathonLuiten/TrackEval/blob/master/docs/MOTChallenge-Official/Readme.md)):
   `python scripts/run_mot_challenge.py --BENCHMARK MOT20 --SPLIT_TO_EVAL train --TRACKERS_TO_EVAL SortCS --METRICS HOTA CLEAR Identity VACE --USE_PARALLEL False --NUM_PARALLEL_CORES 1`
 
-[**For now incorrect**] Results for SortCS & MOT20:
+Preliminary results for SortCS & MOT20 Train:
 ```
-All sequences for SortCS finished in 83.10 seconds
+All sequences for SortCS finished in 103.38 seconds
 
 HOTA: SortCS-pedestrian            HOTA      DetA      AssA      DetRe     DetPr     AssRe     AssPr     LocA      RHOTA     HOTA(0)   LocA(0)   HOTALocA(0)
-MOT20-01                           100       100       100       100       100       100       100       100       100       100       100       100
-MOT20-02                           78.251    100       61.232    100       100       65.497    88.4      100       78.251    78.251    100       78.251
-MOT20-03                           69.046    99.999    47.674    100       100       48.984    86.758    100       69.046    69.047    100       69.046
-MOT20-05                           66.401    99.798    44.18     99.899    99.899    47.377    81.006    99.965    66.435    66.459    99.904    66.395
-COMBINED                           69.567    99.885    48.452    99.942    99.942    51.216    83.939    99.98     69.587    69.6      99.945    69.562
+MOT20-01                           97.52     97.299    97.75     98.397    98.397    98.616    98.616    96.449    98.067    100       96.333    96.333
+MOT20-02                           76.905    97.8      60.478    98.736    98.737    65.202    86.718    96.909    77.271    78.464    96.803    75.955
+MOT20-03                           66.813    96.08     46.481    97.64     97.641    48.266    84.487    96.139    67.367    68.979    95.845    66.113
+MOT20-05                           64.614    96.537    43.255    98.026    98.03     46.88     79.206    96.548    65.114    66.432    96.217    63.919
+COMBINED                           67.705    96.586    47.471    98.023    98.025    50.691    82.04     96.483    68.213    69.6      96.196    66.953
 
 CLEAR: SortCS-pedestrian           MOTA      MOTP      MODA      CLR_Re    CLR_Pr    MTR       PTR       MLR       sMOTA     CLR_TP    CLR_FN    CLR_FP    IDSW      MT        PT        ML        Frag      
-MOT20-01                           100       100       100       100       100       100       0         0         100       19870     0         0         0         74        0         0         0
-MOT20-02                           99.866    100       100       100       100       100       0         0         99.866    154742    0         0         207       270       0         0         0
-MOT20-03                           99.283    99.974    100       100       100       100       0         0         99.258    313658    0         0         2248      702       0         0         0
-MOT20-05                           99.338    99.929    100       100       100       100       0         0         99.267    646344    0         0         4280      1169      0         0         0
-COMBINED                           99.406    99.952    100       100       100       100       0         0         99.359    1134614   0         0         6735      2215      0         0         0
+MOT20-01                           100       96.333    100       100       100       100       0         0         96.333    19870     0         0         0         74        0         0         0
+MOT20-02                           99.806    96.819    99.941    99.97     99.971    100       0         0         96.626    154695    47        45        208       270       0         0         32
+MOT20-03                           98.894    95.925    99.616    99.807    99.808    100       0         0         94.827    313054    604       601       2264      702       0         0         533
+MOT20-05                           98.905    96.355    99.557    99.777    99.78     99.914    0.085543  0         95.268    644900    1444      1419      4216      1168      1         0         1102
+COMBINED                           99.044    96.299    99.633    99.815    99.818    99.955    0.045147  0         95.35     1132519   2095      2065      6688      2214      1         0         1667
 
 Identity: SortCS-pedestrian        IDF1      IDR       IDP       IDTP      IDFN      IDFP
 MOT20-01                           100       100       100       19870     0         0
-MOT20-02                           70.672    70.672    70.672    109359    45383     45383
-MOT20-03                           60.385    60.385    60.385    189401    124257    124257
-MOT20-05                           57.169    57.169    57.169    369506    276838    276838
-COMBINED                           60.649    60.649    60.649    688136    446478    446478
+MOT20-02                           71.141    71.14     71.141    110084    44658     44656
+MOT20-03                           60.351    60.351    60.352    189296    124362    124359
+MOT20-05                           57.143    57.142    57.144    369332    277012    276987
+COMBINED                           60.689    60.689    60.69     688582    446032    446002
 
 VACE: SortCS-pedestrian            SFDA      ATA
-MOT20-01                           100       100
-MOT20-02                           100       57.835
-MOT20-03                           100       31.045
-MOT20-05                           100       31.712
-COMBINED                           100       34.767
+MOT20-01                           96.356    100
+MOT20-02                           96.795    58.253
+MOT20-03                           95.943    31.567
+MOT20-05                           96.295    32.092
+COMBINED                           96.359    35.234
 
 Count: SortCS-pedestrian           Dets      GT_Dets   IDs       GT_IDs
 MOT20-01                           19870     19870     74        74
-MOT20-02                           154742    154742    408       270
-MOT20-03                           313658    313658    2149      702
-MOT20-05                           646344    646344    3635      1169
-COMBINED                           1134614   1134614   6266      2215
+MOT20-02                           154740    154742    403       270
+MOT20-03                           313655    313658    2096      702
+MOT20-05                           646319    646344    3547      1169
+COMBINED                           1134584   1134614   6120      2215
 ```
 
 # Attributions

@@ -41,7 +41,7 @@ namespace SortCS.Evaluate
             await Task.WhenAll(tasks);
             stopwatch.Stop();
             var totalFrames = tasks.Sum(x => x.Result);
-            _logger.LogInformation("Finished evaluating {totalFrames} frames in {totalSeconds:0.} seconds ({fps} fps)", totalFrames, stopwatch.Elapsed.TotalSeconds, totalFrames / stopwatch.Elapsed.TotalSeconds);
+            _logger.LogInformation("Finished evaluating {totalFrames} frames in {totalSeconds:0.} seconds ({fps:0.0} fps)", totalFrames, stopwatch.Elapsed.TotalSeconds, totalFrames / stopwatch.Elapsed.TotalSeconds);
         }
 
         private async Task<int> EvaluateBenchMark(DirectoryInfo benchmarkFolder)
@@ -96,7 +96,6 @@ namespace SortCS.Evaluate
                 _logger.LogInformation("Read {framesCount} frames, output to {outputFile}", frames.Count, path);
                 using var file = new StreamWriter(path, false);
 
-                //ITracker tracker = new SimpleBoxTracker(); // or SortTracker
                 ITracker tracker = new SortTracker(_logger);
                 foreach (var frame in frames)
                 {

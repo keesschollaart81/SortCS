@@ -6,10 +6,10 @@ using System.Linq;
 namespace SortCS.Tests
 {
     [TestClass]
-    public class SimpleTrackerTests
+    public class SortTrackerTests
     {
         [TestMethod]
-        public void SimpleTracker_FourEasyTracks_TrackedToEnd()
+        public void SortTracker_FourEasyTracks_TrackedToEnd()
         {
             // Arrange
             var mot15Track = new List<Frame>{
@@ -61,7 +61,7 @@ namespace SortCS.Tests
         }
 
         [TestMethod]
-        public void SimpleTracker_CrossingTracks_EndInCorrectEndLocation()
+        public void SortTracker_CrossingTracks_EndInCorrectEndLocation()
         {
             // Arrange 
             var crossingTrack = new List<Frame>{
