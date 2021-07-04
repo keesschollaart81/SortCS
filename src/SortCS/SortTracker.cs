@@ -116,7 +116,7 @@ namespace SortCS
                 return (new(), boxes);
             }
 
-            var matrix = trackers.SelectMany((tracker) => boxes.Select((box) =>
+            var matrix = boxes.SelectMany((box) => trackers.Select((tracker) =>
             {
                 var intersection = RectangleF.Intersect(box.Box, tracker.Box);
                 var union = RectangleF.Union(box.Box, tracker.Box);
@@ -128,12 +128,20 @@ namespace SortCS
                 return (int)(100 * -iou);
             })).ToArray(boxes.Count, trackers.Count);
 
-            var original = (int[,]) matrix.Clone();            
+            if (boxes.Count > trackers.Count)
+            {
+                var extra = new int[boxes.Count - trackers.Count];
+                matrix = Enumerable.Range(0, boxes.Count)
+                    .SelectMany(row => Enumerable.Range(0, trackers.Count).Select(col => matrix[row, col]).Concat(extra))
+                    .ToArray(boxes.Count, boxes.Count);
+            }
+
+            var original = (int[,])matrix.Clone();
             var matchedBoxIndices = matrix.FindAssignments();
-            
+
             // here we filter the matches that did not have a cost of 100
             // todo: filter before `FindAssignments()` so that all matches with a cost of 100 are ignored / not part of the computation
-            var tussenstap = matchedBoxIndices.Select((ti, bi) => (bi, ti));
+            var tussenstap = matchedBoxIndices.Select((ti, bi) => (bi, ti)).Where(bt => bt.ti < trackers.Count);
             var matchedBoxIndicesWithOverlap = tussenstap.ToDictionary(x => x.bi, x =>
              {
                  if (original[x.bi, x.ti] < 100)

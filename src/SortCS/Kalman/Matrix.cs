@@ -43,6 +43,18 @@ namespace SortCS.Kalman
             Columns = _values.GetLength(1);
         }
 
+        public Matrix(int[,] values) 
+            : this(values.GetLength(0), values.GetLength(1))
+        {
+            for (var row = 0; row < Rows; row++)
+            {
+                for (var col = 0; col < Columns; col++)
+                {
+                    _values[row, col] = (double)values[row, col];
+                }
+            }
+        }
+
         public Matrix(int rows, int columns)
             : this(new double[rows, columns])
         {

@@ -21,14 +21,15 @@ namespace SortCS.Tests
                 new Frame(new List<BoundingBox>{
                     new BoundingBox(1, "person", 1699,383,159,341, 1),
                     new BoundingBox(1, "person", 1293,455,83,213,  1),
-                    new BoundingBox(1, "person", 261,447,101,263,  1),
+                    //new BoundingBox(1, "person", 261,447,101,263,  1),
                     new BoundingBox(1, "person", 1253,529,55,127,  1)
                 }),
                 new Frame(new List<BoundingBox>{
                     new BoundingBox(1, "person", 1697,383,159,343, 1),
                     new BoundingBox(1, "person", 1293,455,83,213,  1),
                     new BoundingBox(1, "person", 263,447,101,263,  1),
-                    new BoundingBox(1, "person", 1255,529,55,127,  1)
+                    new BoundingBox(1, "person", 1255,529,55,127,  1),
+                    new BoundingBox(1, "person", 429,300,55,127,  1)
                 }),
                 new Frame(new List<BoundingBox>{
                     new BoundingBox(1, "person", 1695,383,159,343, 1),
