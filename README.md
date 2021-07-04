@@ -50,7 +50,7 @@ Brief instructions:
 - Run TrackEval (according to their [readme](https://github.com/JonathonLuiten/TrackEval/blob/master/docs/MOTChallenge-Official/Readme.md)):
   `python scripts/run_mot_challenge.py --BENCHMARK MOT20 --SPLIT_TO_EVAL train --TRACKERS_TO_EVAL SortCS --METRICS HOTA CLEAR Identity VACE --USE_PARALLEL False --NUM_PARALLEL_CORES 1`
 
-Example results for SortCS & MOT20:
+[**For now incorrect**] Results for SortCS & MOT20:
 ```
 All sequences for SortCS finished in 83.10 seconds
 
