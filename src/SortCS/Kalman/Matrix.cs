@@ -180,7 +180,14 @@ namespace SortCS.Kalman
         {
             Debug.Assert(Columns == vector.Length, "Matrix should have the same number of columns as the vector has rows.");
 
-            return new Vector(Enumerable.Range(0, Rows).Select(Row).Select(row => row.Dot(vector)).ToArray());
+            var result = new double[Rows];
+            for (int i = 0; i < Rows; i++)
+            {
+                var row = Row(i);
+                result[i] = row.Dot(vector);
+            }
+
+            return new Vector(result);
         }
 
         public Vector Row(int index)

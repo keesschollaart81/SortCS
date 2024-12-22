@@ -7,7 +7,7 @@ namespace SortCS
     {
         public static T[,] ToArray<T>(this IEnumerable<T> source, int firstDimensionLength, int secondDimensionLength)
         {
-            var array = source.ToArray();
+            var array = source as T[] ?? source.ToArray();
             var result = new T[firstDimensionLength, secondDimensionLength];
 
             for (var i = 0; i < array.Length; i++)

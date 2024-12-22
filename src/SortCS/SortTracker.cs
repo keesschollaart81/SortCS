@@ -112,7 +112,7 @@ namespace SortCS
         }
 
         private (Dictionary<int, RectangleF> Matched, ICollection<RectangleF> Unmatched) MatchDetectionsWithPredictions(
-            ICollection<RectangleF> boxes,
+            RectangleF[] boxes,
             ICollection<RectangleF> trackPredictions)
         {
             if (trackPredictions.Count == 0)
@@ -120,19 +120,23 @@ namespace SortCS
                 return (new(), boxes);
             }
 
-            var matrix = boxes.SelectMany((box) => trackPredictions.Select((trackPrediction) =>
-            {
-                var iou = IoU(box, trackPrediction);
+            var matrix = new int[boxes.Length, trackPredictions.Count];
+            var trackPredictionsArray = trackPredictions.ToArray();
 
-                return (int)(100 * -iou);
-            })).ToArray(boxes.Count, trackPredictions.Count);
-
-            if (boxes.Count > trackPredictions.Count)
+            for (int i = 0; i < boxes.Length; i++)
             {
-                var extra = new int[boxes.Count - trackPredictions.Count];
-                matrix = Enumerable.Range(0, boxes.Count)
+                for (int j = 0; j < trackPredictionsArray.Length; j++)
+                {
+                    matrix[i, j] = (int)(-100 * IoU(boxes[i], trackPredictionsArray[j]));
+                }
+            }
+
+            if (boxes.Length > trackPredictions.Count)
+            {
+                var extra = new int[boxes.Length - trackPredictions.Count];
+                matrix = Enumerable.Range(0, boxes.Length)
                     .SelectMany(row => Enumerable.Range(0, trackPredictions.Count).Select(col => matrix[row, col]).Concat(extra))
-                    .ToArray(boxes.Count, boxes.Count);
+                    .ToArray(boxes.Length, boxes.Length);
             }
 
             var original = (int[,])matrix.Clone();

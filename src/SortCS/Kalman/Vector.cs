@@ -20,26 +20,47 @@ namespace SortCS.Kalman
 
         public int Length => _values.Length;
 
-        public double this[int index] => _values[index];
+        public double this[int index]
+        {
+            get => _values[index];
+            set => _values[index] = value;
+        }
 
         public static Vector operator -(Vector first, Vector second)
         {
             Debug.Assert(first.Length == second.Length, "Vectors should be of equal size");
-            return new Vector(first._values.Zip(second._values, (a, b) => a - b).ToArray());
+            var resultArray = new double[first.Length];
+            for (int i = 0; i < first.Length; i++)
+            {
+                resultArray[i] = first[i] - second[i];
+            }
+
+            return new Vector(resultArray);
         }
 
         public static Vector operator +(Vector first, Vector second)
         {
             Debug.Assert(first.Length == second.Length, "Vectors should be of equal size");
-            return new Vector(first._values.Zip(second._values, (a, b) => a + b).ToArray());
+            var resultArray = new double[first.Length];
+            for (int i = 0; i < first.Length; i++)
+            {
+                resultArray[i] = first[i] + second[i];
+            }
+
+            return new Vector(resultArray);
         }
 
         public double Dot(Vector other)
         {
             Debug.Assert(_values.Length == other._values.Length, "Vectors should be of equal length.");
             Debug.Assert(_values.Length > 0, "Vectors must have at least one element.");
+            double sum = 0;
+            for (int i = 0; i < _values.Length; i++)
+            {
+                sum += _values[i] * other._values[i];
+            }
 
-            return _values.Zip(other._values, (a, b) => a * b).Sum();
+            return sum;
         }
 
         public override string ToString()
@@ -50,11 +71,6 @@ namespace SortCS.Kalman
         internal Vector Append(params double[] extraElements)
         {
             return new Vector(_values.Concat(extraElements).ToArray());
-        }
-
-        internal double[] ToArray()
-        {
-            return _values.ToArray();
         }
     }
 }
