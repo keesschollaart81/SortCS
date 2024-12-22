@@ -37,7 +37,7 @@ jobs:
       run: dotnet test --no-restore --verbosity normal --logger trx --results-directory "TestResults-${{ matrix.os }}"
 
     - name: Upload dotnet test results
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: dotnet-results-${{ matrix.os }}
         path: TestResults-${{ matrix.os }}
