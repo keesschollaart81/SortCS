@@ -1,7 +1,9 @@
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Microsoft.VisualBasic;
 
 namespace SortCS.Kalman
 {
@@ -46,6 +48,11 @@ namespace SortCS.Kalman
         {
             get
             {
+                if (field != null)
+                {
+                    return field;
+                }
+
                 var result = new double[Columns, Rows];
 
                 for (var row = 0; row < Rows; row++)
@@ -56,7 +63,9 @@ namespace SortCS.Kalman
                     }
                 }
 
-                return new Matrix(result);
+                field = new Matrix(result);
+
+                return field;
             }
         }
 
@@ -153,7 +162,11 @@ namespace SortCS.Kalman
             {
                 for (var col = 0; col < cols; col++)
                 {
-                    result[row, col] = first.Row(row).Dot(second.Column(col));
+                    var bufFirst = ArrayPool<double>.Shared.Rent(first.Columns);
+                    var bufSecond = ArrayPool<double>.Shared.Rent(first.Rows);
+                    result[row, col] = first.Row(row, bufFirst).Dot(second.Column(col, bufSecond));
+                    ArrayPool<double>.Shared.Return(bufFirst, true);
+                    ArrayPool<double>.Shared.Return(bufSecond, true);
                 }
             }
 
@@ -182,13 +195,15 @@ namespace SortCS.Kalman
 
         public Vector Dot(Vector vector)
         {
-            Debug.Assert(Columns == vector.Length, "Matrix should have the same number of columns as the vector has rows.");
+            Debug.Assert(Columns == vector.Size, "Matrix should have the same number of columns as the vector has rows.");
 
             var result = new double[Rows];
             for (int i = 0; i < Rows; i++)
             {
-                var row = Row(i);
+                var buf = ArrayPool<double>.Shared.Rent(Columns);
+                var row = Row(i, buf);
                 result[i] = row.Dot(vector);
+                ArrayPool<double>.Shared.Return(buf);
             }
 
             return new Vector(result);
@@ -196,24 +211,29 @@ namespace SortCS.Kalman
 
         public Vector Row(int index)
         {
-            Debug.Assert(index <= Rows, "Row index out of range.");
-            if (!_rows.ContainsKey(index))
-            {
-                _rows[index] = new Vector(Enumerable.Range(0, Columns).Select(col => _values[index, col]).ToArray());
-            }
-
-            return _rows[index];
+            return Row(index, new double[Columns]);
         }
 
-        public Vector Column(int index)
+        public Vector Row(int index, double[] buffer)
         {
-            Debug.Assert(index <= Columns, "Column index out of range.");
-            if (!_cols.ContainsKey(index))
+            Debug.Assert(index <= Rows, "Row index out of range.");
+            for (int col = 0; col < Columns; col++)
             {
-                _cols[index] = new Vector(Enumerable.Range(0, Rows).Select(row => _values[row, index]).ToArray());
+                buffer[col] = _values[index, col];
             }
 
-            return _cols[index];
+            return new Vector(buffer, Columns);
+        }
+
+        public Vector Column(int index, double[] buf)
+        {
+            Debug.Assert(index <= Columns, "Column index out of range.");
+            for (int row = 0; row < Rows; row++)
+            {
+                buf[row] = _values[row, index];
+            }
+
+            return new Vector(buf, Rows);
         }
 
         private double[] BackSubstition(double[,] lu, int[] indices, double[] b)

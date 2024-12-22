@@ -7,57 +7,57 @@ namespace SortCS.Kalman
     internal class KalmanBoxTracker
     {
         private static Matrix _stateTransitioningMatrix = new Matrix(
-                    new double[,]
-                    {
-                        { 1, 0, 0, 0, 1, 0, 0 },
-                        { 0, 1, 0, 0, 0, 1, 0 },
-                        { 0, 0, 1, 0, 0, 0, 1 },
-                        { 0, 0, 0, 1, 0, 0, 0 },
-                        { 0, 0, 0, 0, 1, 0, 0 },
-                        { 0, 0, 0, 0, 0, 1, 0 },
-                        { 0, 0, 0, 0, 0, 0, 1 }
-                    });
+            new double[,]
+            {
+                { 1, 0, 0, 0, 1, 0, 0 },
+                { 0, 1, 0, 0, 0, 1, 0 },
+                { 0, 0, 1, 0, 0, 0, 1 },
+                { 0, 0, 0, 1, 0, 0, 0 },
+                { 0, 0, 0, 0, 1, 0, 0 },
+                { 0, 0, 0, 0, 0, 1, 0 },
+                { 0, 0, 0, 0, 0, 0, 1 }
+            });
 
         private static Matrix _measurementFunction = new Matrix(
-                    new double[,]
-                    {
-                        { 1, 0, 0, 0, 0, 0, 0 },
-                        { 0, 1, 0, 0, 0, 0, 0 },
-                        { 0, 0, 1, 0, 0, 0, 0 },
-                        { 0, 0, 0, 1, 0, 0, 0 }
-                    });
+            new double[,]
+            {
+                { 1, 0, 0, 0, 0, 0, 0 },
+                { 0, 1, 0, 0, 0, 0, 0 },
+                { 0, 0, 1, 0, 0, 0, 0 },
+                { 0, 0, 0, 1, 0, 0, 0 }
+            });
 
         private static Matrix _uncertaintyCovariances = new Matrix(
-                    new double[,]
-                    {
-                        { 10, 0, 0, 0, 0, 0, 0 },
-                        { 0, 10, 0, 0, 0, 0, 0 },
-                        { 0, 0, 10, 0, 0, 0, 0 },
-                        { 0, 0, 0, 10, 0, 0, 0 },
-                        { 0, 0, 0, 0, 10000, 0, 0 },
-                        { 0, 0, 0, 0, 0, 10000, 0 },
-                        { 0, 0, 0, 0, 0, 0, 10000 }
-                    });
+            new double[,]
+            {
+                { 10, 0, 0, 0, 0, 0, 0 },
+                { 0, 10, 0, 0, 0, 0, 0 },
+                { 0, 0, 10, 0, 0, 0, 0 },
+                { 0, 0, 0, 10, 0, 0, 0 },
+                { 0, 0, 0, 0, 10000, 0, 0 },
+                { 0, 0, 0, 0, 0, 10000, 0 },
+                { 0, 0, 0, 0, 0, 0, 10000 }
+            });
 
         private static Matrix _measurementUncertainty = new Matrix(new double[,]
         {
-                        { 1, 0, 0, 0 },
-                        { 0, 1, 0, 0 },
-                        { 0, 0, 10, 0 },
-                        { 0, 0, 0, 10 },
+            { 1, 0, 0, 0 },
+            { 0, 1, 0, 0 },
+            { 0, 0, 10, 0 },
+            { 0, 0, 0, 10 },
         });
 
         private static Matrix _processUncertainty = new Matrix(
-                    new double[,]
-                    {
-                        { 1, 0, 0, 0, 0, 0, 0 },
-                        { 0, 1, 0, 0, 0, 0, 0 },
-                        { 0, 0, 1, 0, 0, 0, 0 },
-                        { 0, 0, 0, 1, 0, 0, 0 },
-                        { 0, 0, 0, 0, .01, 0, 0 },
-                        { 0, 0, 0, 0, 0, .01, 0 },
-                        { 0, 0, 0, 0, 0, 0, .0001 }
-                    });
+            new double[,]
+            {
+                { 1, 0, 0, 0, 0, 0, 0 },
+                { 0, 1, 0, 0, 0, 0, 0 },
+                { 0, 0, 1, 0, 0, 0, 0 },
+                { 0, 0, 0, 1, 0, 0, 0 },
+                { 0, 0, 0, 0, .01, 0, 0 },
+                { 0, 0, 0, 0, 0, .01, 0 },
+                { 0, 0, 0, 0, 0, 0, .0001 }
+            });
 
         private readonly KalmanFilter _filter;
 
@@ -83,7 +83,7 @@ namespace SortCS.Kalman
         {
             if (_filter.CurrentState[6] + _filter.CurrentState[2] <= 0)
             {
-                _filter.CurrentState[6] = 0;
+                _filter.SetState(6, 0);
             }
 
             _filter.Predict();

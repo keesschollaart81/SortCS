@@ -3,7 +3,8 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace SortCS.Kalman
 {
-    [SuppressMessage("Major Code Smell", "S3928:Parameter names used into ArgumentException constructors should match an existing one ", Justification = "Properties throw ArgumentException for 'value'")]
+    [SuppressMessage("Major Code Smell", "S3928:Parameter names used into ArgumentException constructors should match an existing one ",
+        Justification = "Properties throw ArgumentException for 'value'")]
     internal class KalmanFilter
     {
         private readonly int _stateSize;
@@ -17,6 +18,12 @@ namespace SortCS.Kalman
 
         private Vector _currentState;
         private Matrix _uncertaintyCovariances;
+        private Matrix _pht;
+        private Matrix _s;
+        private Matrix _si;
+        private Matrix _k;
+        private Matrix _kh;
+        private Matrix _ikh;
 
         public KalmanFilter(int stateSize, int measurementSize)
         {
@@ -39,7 +46,7 @@ namespace SortCS.Kalman
         public Vector CurrentState
         {
             get => _currentState;
-            set => _currentState = value.Length == _stateSize
+            set => _currentState = value.Size == _stateSize
                 ? value
                 : throw new ArgumentException($"Vector must be of size {_stateSize}.", nameof(value));
         }
@@ -96,32 +103,34 @@ namespace SortCS.Kalman
                 : throw new ArgumentException($"Matrix must be of size {_measurementSize}x{_stateSize}.", nameof(value));
         }
 
-        public void Predict(Matrix stateTransitionMatrix = null, Matrix processNoiseMatrix = null)
+        public void SetState(int index, double values)
         {
-            stateTransitionMatrix ??= StateTransitionMatrix;
-            processNoiseMatrix ??= ProcessUncertainty;
-
-            _currentState = stateTransitionMatrix.Dot(CurrentState);
-            _uncertaintyCovariances = (_alphaSq * stateTransitionMatrix * UncertaintyCovariances * stateTransitionMatrix.Transposed) + processNoiseMatrix;
+            _currentState[index] = values;
         }
 
-        [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1312:Variable names should begin with lower-case letter", Justification = "These are well known abbreviations for the Kalman Filter")]
-        public void Update(Vector measurement, Matrix measurementNoise = null, Matrix measurementFunction = null)
+        public void Predict()
         {
-            measurementNoise ??= MeasurementUncertainty;
-            measurementFunction ??= MeasurementFunction;
+            _currentState = StateTransitionMatrix.Dot(CurrentState);
+            _uncertaintyCovariances = (_alphaSq * StateTransitionMatrix * UncertaintyCovariances * StateTransitionMatrix.Transposed) +
+                                      ProcessUncertainty;
+        }
 
-            var y = measurement - measurementFunction.Dot(CurrentState);
-            var pht = UncertaintyCovariances * measurementFunction.Transposed;
-            var S = (measurementFunction * pht) + measurementNoise;
-            var SI = S.Inverted;
-            var K = pht * SI;
+        [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1312:Variable names should begin with lower-case letter",
+            Justification = "These are well known abbreviations for the Kalman Filter")]
+        public void Update(Vector measurement)
+        {
+            _pht ??= UncertaintyCovariances * MeasurementFunction.Transposed;
+            _s ??= (MeasurementFunction * _pht) + MeasurementUncertainty;
+            _si ??= _s.Inverted;
+            _k ??= _pht * _si;
+            _kh ??= _k * MeasurementFunction;
+            _ikh ??= _identity - _kh;
 
-            _currentState += K.Dot(y);
+            var y = measurement - MeasurementFunction.Dot(CurrentState);
 
-            var I_KH = _identity - (K * measurementFunction);
+            _currentState += _k.Dot(y);
 
-            _uncertaintyCovariances = (I_KH * UncertaintyCovariances * I_KH.Transposed) + (K * measurementNoise * K.Transposed);
+            _uncertaintyCovariances = (_ikh * UncertaintyCovariances * _ikh.Transposed) + (_k * MeasurementUncertainty * _k.Transposed);
         }
     }
 }
