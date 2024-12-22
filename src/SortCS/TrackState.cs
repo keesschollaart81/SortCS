@@ -1,10 +1,9 @@
-namespace SortCS
+namespace SortCS;
+
+public enum TrackState
 {
-    public enum TrackState
-    {
-        Started,
-        Active,
-        Ending,
-        Ended
-    }
+    Started,
+    Active,
+    Ending,
+    Ended
 }
