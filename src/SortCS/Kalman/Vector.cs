@@ -1,60 +1,97 @@
+using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 
-namespace SortCS.Kalman
+namespace SortCS.Kalman;
+
+internal struct Vector
 {
-    internal class Vector
+    private readonly double[] _values;
+
+    public Vector(params double[] values)
     {
-        private readonly double[] _values;
+        _values = values;
+        Size = values.Length;
+    }
 
-        public Vector(params double[] values)
+    public Vector(double[] values, int size)
+    {
+        if (size > values.Length)
         {
-            _values = values;
+            throw new ArgumentOutOfRangeException(nameof(size));
         }
 
-        public Vector(int size)
+        _values = values;
+        Size = size;
+    }
+
+    public Vector(int size)
+    {
+        _values = new double[size];
+        Size = size;
+    }
+
+    public int Size { get; }
+
+    public double this[int index]
+    {
+        get => index <= Size ? _values[index] : throw new ArgumentOutOfRangeException(nameof(index));
+        set
         {
-            _values = new double[size];
+            if (index > Size)
+            {
+                throw new ArgumentOutOfRangeException(nameof(index));
+            }
+
+            _values[index] = value;
+        }
+    }
+
+    public static Vector operator -(Vector first, Vector second)
+    {
+        Debug.Assert(first.Size == second.Size);
+        var resultArray = new double[first.Size];
+        for (var i = 0; i < first.Size; i++)
+        {
+            resultArray[i] = first[i] - second[i];
         }
 
-        public int Length => _values.Length;
+        return new Vector(resultArray);
+    }
 
-        public double this[int index] => _values[index];
-
-        public static Vector operator -(Vector first, Vector second)
+    public static Vector operator +(Vector first, Vector second)
+    {
+        Debug.Assert(first.Size == second.Size);
+        var resultArray = new double[first.Size];
+        for (var i = 0; i < first.Size; i++)
         {
-            Debug.Assert(first.Length == second.Length, "Vectors should be of equal size");
-            return new Vector(first._values.Zip(second._values, (a, b) => a - b).ToArray());
+            resultArray[i] = first[i] + second[i];
         }
 
-        public static Vector operator +(Vector first, Vector second)
+        return new Vector(resultArray);
+    }
+
+    public double Dot(Vector other)
+    {
+        Debug.Assert(Size == other.Size, $"Vectors should be of equal length {Size} != {other.Size}.");
+        Debug.Assert(Size > 0);
+        double sum = 0;
+        for (var i = 0; i < Size; i++)
         {
-            Debug.Assert(first.Length == second.Length, "Vectors should be of equal size");
-            return new Vector(first._values.Zip(second._values, (a, b) => a + b).ToArray());
+            sum += _values[i] * other[i];
         }
 
-        public double Dot(Vector other)
-        {
-            Debug.Assert(_values.Length == other._values.Length, "Vectors should be of equal length.");
-            Debug.Assert(_values.Length > 0, "Vectors must have at least one element.");
+        return sum;
+    }
 
-            return _values.Zip(other._values, (a, b) => a * b).Sum();
-        }
+    public override string ToString()
+    {
+        return string.Join(", ", _values.Select(v => v.ToString("###0.00", CultureInfo.InvariantCulture)));
+    }
 
-        public override string ToString()
-        {
-            return string.Join(", ", _values.Select(v => v.ToString("###0.00", CultureInfo.InvariantCulture)));
-        }
-
-        internal Vector Append(params double[] extraElements)
-        {
-            return new Vector(_values.Concat(extraElements).ToArray());
-        }
-
-        internal double[] ToArray()
-        {
-            return _values.ToArray();
-        }
+    internal Vector Append(params double[] extraElements)
+    {
+        return new Vector(_values.Take(Size).Concat(extraElements).ToArray());
     }
 }

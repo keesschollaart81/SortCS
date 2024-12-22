@@ -1,10 +1,9 @@
 using System.Collections.Generic;
 using System.Drawing;
 
-namespace SortCS
+namespace SortCS;
+
+public interface ITracker
 {
-    public interface ITracker
-    {
-        IEnumerable<Track> Track(IEnumerable<RectangleF> boxes);
-    }
+    IEnumerable<Track> Track(IEnumerable<RectangleF> boxes);
 }

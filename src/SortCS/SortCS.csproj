@@ -1,16 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup> 
-    <TargetFrameworks>netstandard2.0; net5.0</TargetFrameworks>
+    <TargetFramework>net9.0</TargetFramework>
     <LangVersion>preview</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>  
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Kees Schollaart, Maarten van Sambeek</Authors>
     <Company>Vision Intelligence</Company>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <AssemblyVersion>0.9.0.0</AssemblyVersion>
-    <FileVersion>0.9.0.0</FileVersion>
-    <Version>0.9.0.0</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <Version>1.0.0.0</Version>
     <Product>SortCS</Product>
     <Summary>SortCS is a 'Multiple Object Tracker'.</Summary>
     <Description>SortCS is a 'Multiple Object Tracker'</Description>
@@ -36,8 +36,8 @@
   
   <ItemGroup>
     <PackageReference Include="HungarianAlgorithm" Version="2.2.8" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
-    <PackageReference Include="System.Drawing.Common" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.0" />
+    <PackageReference Include="System.Drawing.Common" Version="9.0.0" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
   </ItemGroup>
 

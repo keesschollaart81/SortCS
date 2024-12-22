@@ -16,9 +16,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		LICENSE = LICENSE
 		README.md = README.md
 		.github\workflows\release.yml = .github\workflows\release.yml
+		sonar-project.properties = sonar-project.properties
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SortCS.Tests", "src\SortCS.Tests\SortCS.Tests.csproj", "{13002E85-6B03-49DA-9700-906A24692C98}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SortCS.Benchmarks", "src\SortCS.Benchmarks\SortCS.Benchmarks.csproj", "{9A2468E6-4556-4C7C-8D29-996200A10EF3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,11 +41,17 @@ Global
 		{13002E85-6B03-49DA-9700-906A24692C98}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{13002E85-6B03-49DA-9700-906A24692C98}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{13002E85-6B03-49DA-9700-906A24692C98}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9A2468E6-4556-4C7C-8D29-996200A10EF3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A2468E6-4556-4C7C-8D29-996200A10EF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A2468E6-4556-4C7C-8D29-996200A10EF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A2468E6-4556-4C7C-8D29-996200A10EF3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8C31716C-280A-44DD-ADAB-E48CEDFBF779}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection
 EndGlobal
