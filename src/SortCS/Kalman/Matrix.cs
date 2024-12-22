@@ -12,9 +12,6 @@ internal class Matrix
 {
     private readonly double[,] _values;
 
-    private readonly Dictionary<int, Vector> _rows = new();
-    private readonly Dictionary<int, Vector> _cols = new();
-
     public Matrix(double[,] values)
     {
         _values = values;
@@ -72,9 +69,9 @@ internal class Matrix
     {
         get
         {
-            Debug.Assert(Rows == Columns, "Matrix must be square.");
+            Debug.Assert(Rows == Columns);
 
-            var (lu, indices, d) = GetDecomposition();
+            var (lu, indices) = GetDecomposition();
             var result = new double[Rows, Columns];
 
             for (var col = 0; col < Columns; col++)
@@ -83,7 +80,7 @@ internal class Matrix
 
                 column[col] = 1.0d;
 
-                var x = BackSubstition(lu, indices, column);
+                var x = BackSubstitution(lu, indices, column);
 
                 for (var row = 0; row < Rows; row++)
                 {
@@ -99,7 +96,7 @@ internal class Matrix
 
     public static Matrix operator +(Matrix first, Matrix second)
     {
-        Debug.Assert(first.Rows == second.Rows && first.Columns == second.Columns, "Matrices must have the same size.");
+        Debug.Assert(first.Rows == second.Rows && first.Columns == second.Columns);
 
         var result = new double[first.Rows, first.Columns];
 
@@ -116,7 +113,7 @@ internal class Matrix
 
     public static Matrix operator -(Matrix first, Matrix second)
     {
-        Debug.Assert(first.Rows == second.Rows && first.Columns == second.Columns, "Matrices must have the same size.");
+        Debug.Assert(first.Rows == second.Rows && first.Columns == second.Columns);
 
         var result = new double[first.Rows, first.Columns];
 
@@ -194,10 +191,10 @@ internal class Matrix
 
     public Vector Dot(Vector vector)
     {
-        Debug.Assert(Columns == vector.Size, "Matrix should have the same number of columns as the vector has rows.");
+        Debug.Assert(Columns == vector.Size);
 
         var result = new double[Rows];
-        for (int i = 0; i < Rows; i++)
+        for (var i = 0; i < Rows; i++)
         {
             var buf = ArrayPool<double>.Shared.Rent(Columns);
             var row = Row(i, buf);
@@ -215,8 +212,8 @@ internal class Matrix
 
     public Vector Row(int index, double[] buffer)
     {
-        Debug.Assert(index <= Rows, "Row index out of range.");
-        for (int col = 0; col < Columns; col++)
+        Debug.Assert(index <= Rows);
+        for (var col = 0; col < Columns; col++)
         {
             buffer[col] = _values[index, col];
         }
@@ -226,8 +223,8 @@ internal class Matrix
 
     public Vector Column(int index, double[] buf)
     {
-        Debug.Assert(index <= Columns, "Column index out of range.");
-        for (int row = 0; row < Rows; row++)
+        Debug.Assert(index <= Columns);
+        for (var row = 0; row < Rows; row++)
         {
             buf[row] = _values[row, index];
         }
@@ -235,7 +232,7 @@ internal class Matrix
         return new Vector(buf, Rows);
     }
 
-    private double[] BackSubstition(double[,] lu, int[] indices, double[] b)
+    private double[] BackSubstitution(double[,] lu, int[] indices, double[] b)
     {
         var x = (double[])b.Clone();
         var ii = 0;
@@ -246,14 +243,14 @@ internal class Matrix
 
             x[ip] = x[row];
 
-            if (ii == 0)
+            if (Math.Sign(ii) == 0)
             {
                 for (var col = ii; col <= row - 1; col++)
                 {
                     sum -= lu[row, col] * x[col];
                 }
             }
-            else if (sum == 0)
+            else if (Math.Sign(sum) == 0)
             {
                 ii = row;
             }
@@ -275,13 +272,13 @@ internal class Matrix
         return x;
     }
 
-    private (double[,] Result, int[] Indices, double D) GetDecomposition()
+    private (double[,] Result, int[] Indices) GetDecomposition()
     {
-        var max_row = 0;
-        var vv = Enumerable.Range(0, this.Rows)
-            .Select(row => 1.0d / Enumerable.Range(0, this.Columns).Select(col => Math.Abs(_values[row, col])).Max()).ToArray();
+        var maxRow = 0;
+        var vv = Enumerable.Range(0, Rows)
+            .Select(row => 1.0d / Enumerable.Range(0, Columns).Select(col => Math.Abs(_values[row, col])).Max()).ToArray();
         var result = (double[,])_values.Clone();
-        var index = new int[this.Rows];
+        var index = new int[Rows];
         var d = 1.0d;
 
         for (var col = 0; col < Columns; col++)
@@ -313,24 +310,22 @@ internal class Matrix
                 if (tmp >= max)
                 {
                     max = tmp;
-                    max_row = row;
+                    maxRow = row;
                 }
             }
 
-            if (col != max_row)
+            if (col != maxRow)
             {
                 for (var k = 0; k < Rows; k++)
                 {
-                    var tmp = result[max_row, k];
-                    result[max_row, k] = result[col, k];
-                    result[col, k] = tmp;
+                    (result[maxRow, k], result[col, k]) = (result[col, k], result[maxRow, k]);
                 }
 
                 d = -d;
-                vv[max_row] = vv[col];
+                vv[maxRow] = vv[col];
             }
 
-            index[col] = max_row;
+            index[col] = maxRow;
 
             if (col != Rows - 1)
             {
@@ -342,7 +337,7 @@ internal class Matrix
             }
         }
 
-        return (result, index, d);
+        return (result, index);
     }
 
     internal class MatrixDisplay

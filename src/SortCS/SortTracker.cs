@@ -58,12 +58,14 @@ public class SortTracker : ITracker
             activeTrackids.Add(track.Track.TrackId);
         }
 
-        var missedTracks = _trackers.Where(x => !activeTrackids.Contains(x.Key));
+        var missedTracks = _trackers
+            .Where(x => !activeTrackids.Contains(x.Key))
+            .Select(x => x.Value.Track);
         foreach (var missedTrack in missedTracks)
         {
-            missedTrack.Value.Track.Misses++;
-            missedTrack.Value.Track.TotalMisses++;
-            missedTrack.Value.Track.State = TrackState.Ending;
+            missedTrack.Misses++;
+            missedTrack.TotalMisses++;
+            missedTrack.State = TrackState.Ending;
         }
 
         var toRemove = _trackers.Where(x => x.Value.Track.Misses > MaxMisses).ToList();
@@ -107,7 +109,7 @@ public class SortTracker : ITracker
         {
             var tracksStr = tracks.Select(x => $"{x.TrackId}{(x.State == TrackState.Active ? null : $": {x.State}")}");
 
-            _logger.LogDebug("Tracks: [{tracks}], Longest: {longest}, Ended: {ended}", string.Join(",", tracksStr), longest, ended);
+            _logger.LogDebug("Tracks: [{Tracks}], Longest: {Longest}, Ended: {Ended}", string.Join(",", tracksStr), longest, ended);
         }
     }
 
@@ -123,9 +125,9 @@ public class SortTracker : ITracker
         var matrix = new int[boxes.Length, trackPredictions.Count];
         var trackPredictionsArray = trackPredictions.ToArray();
 
-        for (int i = 0; i < boxes.Length; i++)
+        for (var i = 0; i < boxes.Length; i++)
         {
-            for (int j = 0; j < trackPredictionsArray.Length; j++)
+            for (var j = 0; j < trackPredictionsArray.Length; j++)
             {
                 matrix[i, j] = (int)(-100 * IoU(boxes[i], trackPredictionsArray[j]));
             }
@@ -156,16 +158,16 @@ public class SortTracker : ITracker
         return (matchedBoxes, unmatchedBoxes);
     }
 
-    private double IoU(RectangleF a, RectangleF b)
+    private static double IoU(RectangleF a, RectangleF b)
     {
-        RectangleF intersection = RectangleF.Intersect(a, b);
+        var intersection = RectangleF.Intersect(a, b);
         if (intersection.IsEmpty)
         {
             return 0;
         }
 
-        double intersectArea = (1.0 + intersection.Width) * (1.0 + intersection.Height);
-        double unionArea = ((1.0 + a.Width) * (1.0 + a.Height)) + ((1.0 + b.Width) * (1.0 + b.Height)) - intersectArea;
+        var intersectArea = (1.0 + intersection.Width) * (1.0 + intersection.Height);
+        var unionArea = ((1.0 + a.Width) * (1.0 + a.Height)) + ((1.0 + b.Width) * (1.0 + b.Height)) - intersectArea;
         return intersectArea / (unionArea + 1e-5);
     }
 }

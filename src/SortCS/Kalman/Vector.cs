@@ -36,7 +36,7 @@ internal struct Vector
 
     public double this[int index]
     {
-        get => index <= Size ? _values[index] : throw new Exception("nope");
+        get => index <= Size ? _values[index] : throw new ArgumentOutOfRangeException(nameof(index));
         set
         {
             if (index > Size)
@@ -50,9 +50,9 @@ internal struct Vector
 
     public static Vector operator -(Vector first, Vector second)
     {
-        Debug.Assert(first.Size == second.Size, "Vectors should be of equal size");
+        Debug.Assert(first.Size == second.Size);
         var resultArray = new double[first.Size];
-        for (int i = 0; i < first.Size; i++)
+        for (var i = 0; i < first.Size; i++)
         {
             resultArray[i] = first[i] - second[i];
         }
@@ -62,9 +62,9 @@ internal struct Vector
 
     public static Vector operator +(Vector first, Vector second)
     {
-        Debug.Assert(first.Size == second.Size, "Vectors should be of equal size");
+        Debug.Assert(first.Size == second.Size);
         var resultArray = new double[first.Size];
-        for (int i = 0; i < first.Size; i++)
+        for (var i = 0; i < first.Size; i++)
         {
             resultArray[i] = first[i] + second[i];
         }
@@ -75,9 +75,9 @@ internal struct Vector
     public double Dot(Vector other)
     {
         Debug.Assert(Size == other.Size, $"Vectors should be of equal length {Size} != {other.Size}.");
-        Debug.Assert(Size > 0, "Vectors must have at least one element.");
+        Debug.Assert(Size > 0);
         double sum = 0;
-        for (int i = 0; i < Size; i++)
+        for (var i = 0; i < Size; i++)
         {
             sum += _values[i] * other[i];
         }

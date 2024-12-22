@@ -32,10 +32,10 @@ public class SortCSBenchmarks
         var random = new Random(42);
         var frames = new List<RectangleF[]>();
 
-        for (int i = 0; i < numFrames; i++)
+        for (var i = 0; i < numFrames; i++)
         {
             var objects = new RectangleF[objectsPerFrame];
-            for (int j = 0; j < objectsPerFrame; j++)
+            for (var j = 0; j < objectsPerFrame; j++)
             {
                 objects[j] = new RectangleF(
                     random.Next(0, 1000),
