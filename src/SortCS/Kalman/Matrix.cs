@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
@@ -9,6 +10,9 @@ namespace SortCS.Kalman
     internal class Matrix
     {
         private readonly double[,] _values;
+
+        private readonly Dictionary<int, Vector> _rows = new();
+        private readonly Dictionary<int, Vector> _cols = new();
 
         public Matrix(double[,] values)
         {
@@ -193,13 +197,23 @@ namespace SortCS.Kalman
         public Vector Row(int index)
         {
             Debug.Assert(index <= Rows, "Row index out of range.");
-            return new Vector(Enumerable.Range(0, Columns).Select(col => _values[index, col]).ToArray());
+            if (!_rows.ContainsKey(index))
+            {
+                _rows[index] = new Vector(Enumerable.Range(0, Columns).Select(col => _values[index, col]).ToArray());
+            }
+
+            return _rows[index];
         }
 
         public Vector Column(int index)
         {
             Debug.Assert(index <= Columns, "Column index out of range.");
-            return new Vector(Enumerable.Range(0, Rows).Select(row => _values[row, index]).ToArray());
+            if (!_cols.ContainsKey(index))
+            {
+                _cols[index] = new Vector(Enumerable.Range(0, Rows).Select(row => _values[row, index]).ToArray());
+            }
+
+            return _cols[index];
         }
 
         private double[] BackSubstition(double[,] lu, int[] indices, double[] b)
@@ -245,7 +259,8 @@ namespace SortCS.Kalman
         private (double[,] Result, int[] Indices, double D) GetDecomposition()
         {
             var max_row = 0;
-            var vv = Enumerable.Range(0, this.Rows).Select(row => 1.0d / Enumerable.Range(0, this.Columns).Select(col => Math.Abs(_values[row, col])).Max()).ToArray();
+            var vv = Enumerable.Range(0, this.Rows)
+                .Select(row => 1.0d / Enumerable.Range(0, this.Columns).Select(col => Math.Abs(_values[row, col])).Max()).ToArray();
             var result = (double[,])_values.Clone();
             var index = new int[this.Rows];
             var d = 1.0d;
