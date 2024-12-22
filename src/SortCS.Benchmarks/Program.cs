@@ -8,8 +8,8 @@ BenchmarkRunner.Run<SortCSBenchmarks>();
 [MemoryDiagnoser]
 public class SortCSBenchmarks
 {
-    private ITracker _tracker;
-    private List<RectangleF[]> _frames;
+    private ITracker? _tracker;
+    private List<RectangleF[]>? _frames;
 
     [GlobalSetup]
     public void Setup()
@@ -21,9 +21,9 @@ public class SortCSBenchmarks
     [Benchmark]
     public void TrackMultipleFrames()
     {
-        foreach (var frame in _frames)
+        foreach (var frame in _frames ?? [])
         {
-            _tracker.Track(frame);
+            _tracker!.Track(frame);
         }
     }
 

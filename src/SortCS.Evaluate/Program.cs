@@ -26,24 +26,28 @@ class Program
 
         _logger = serviceProvider.GetService<ILogger<Program>>();
 
+        var dataFolderOption = new Option<DirectoryInfo>(
+                       "--data-folder",
+                       getDefaultValue: () => new DirectoryInfo(@"../../../../../../TrackEval/data"), // Sssuming SortCS/src/SortCS.Evaluate/bin/debug/net5.0 is working directory 
+                       description: "Location where data is stored using this format: https://github.com/JonathonLuiten/TrackEval/blob/master/docs/MOTChallenge-format.txt");
+
+        var benchmarkOption = new Option<string>(
+            "--benchmark",
+            getDefaultValue: () => "MOT20",
+            description: "Name of the benchmark, e.g. MOT15, MO16, MOT17 or MOT20 (default : MOT20)");
+
+        var splitOption = new Option<string>(
+               "--split-to-eval",
+               getDefaultValue: () => "train",
+               description: "Data split on which to evalute e.g. train, test (default : train)");
+
         var rootCommand = new RootCommand
         {
-            new Option<DirectoryInfo>(
-                "--data-folder",
-                getDefaultValue: () => new DirectoryInfo(@"../../../../../../TrackEval/data"), // Sssuming SortCS/src/SortCS.Evaluate/bin/debug/net5.0 is working directory 
-                description: "Location where data is stored using this format: https://github.com/JonathonLuiten/TrackEval/blob/master/docs/MOTChallenge-format.txt"),
-            new Option<string>(
-                "--benchmark",
-                getDefaultValue: () => "MOT20",
-                description: "Name of the benchmark, e.g. MOT15, MO16, MOT17 or MOT20 (default : MOT20)"),
-            new Option<string>(
-                "--split-to-eval",
-                getDefaultValue: () => "train",
-                description: "Data split on which to evalute e.g. train, test (default : train)"),
+            dataFolderOption,benchmarkOption,splitOption
         };
 
         rootCommand.Description = "App to evaluate the SortCS tracking algoritm";
-        rootCommand.Handler = CommandHandler.Create<DirectoryInfo, string, string>(async (dataFolder, benchmark, splitToEval) =>
+        rootCommand.SetHandler(async (dataFolder, benchmark, splitToEval) =>
         {
             if (!dataFolder.Exists || !dataFolder.GetDirectories().Any())
             {
@@ -51,7 +55,7 @@ class Program
             }
             var sortCsEvaluator = new SortCsEvaluator(dataFolder, benchmark, splitToEval, serviceProvider.GetService<ILogger<SortTracker>>());
             await sortCsEvaluator.EvaluateAsync();
-        });
+        }, dataFolderOption, benchmarkOption, splitOption);
 
         return await rootCommand.InvokeAsync(args);
     }
