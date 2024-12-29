@@ -10,9 +10,9 @@ namespace SortCS.Kalman;
 [DebuggerTypeProxy(typeof(MatrixDisplay))]
 internal class Matrix
 {
-    private readonly double[,] _values;
+    private readonly float[,] _values;
 
-    public Matrix(double[,] values)
+    public Matrix(float[,] values)
     {
         _values = values;
         Rows = _values.GetLength(0);
@@ -26,13 +26,13 @@ internal class Matrix
         {
             for (var col = 0; col < Columns; col++)
             {
-                _values[row, col] = (double)values[row, col];
+                _values[row, col] = (float)values[row, col];
             }
         }
     }
 
     public Matrix(int rows, int columns)
-        : this(new double[rows, columns])
+        : this(new float[rows, columns])
     {
     }
 
@@ -49,7 +49,7 @@ internal class Matrix
                 return field;
             }
 
-            var result = new double[Columns, Rows];
+            var result = new float[Columns, Rows];
 
             for (var row = 0; row < Rows; row++)
             {
@@ -72,13 +72,13 @@ internal class Matrix
             Debug.Assert(Rows == Columns);
 
             var (lu, indices) = GetDecomposition();
-            var result = new double[Rows, Columns];
+            var result = new float[Rows, Columns];
 
             for (var col = 0; col < Columns; col++)
             {
-                var column = new double[Columns];
+                var column = new float[Columns];
 
-                column[col] = 1.0d;
+                column[col] = 1.0f;
 
                 var x = BackSubstitution(lu, indices, column);
 
@@ -98,7 +98,7 @@ internal class Matrix
     {
         Debug.Assert(first.Rows == second.Rows && first.Columns == second.Columns);
 
-        var result = new double[first.Rows, first.Columns];
+        var result = new float[first.Rows, first.Columns];
 
         for (var row = 0; row < first.Rows; row++)
         {
@@ -115,7 +115,7 @@ internal class Matrix
     {
         Debug.Assert(first.Rows == second.Rows && first.Columns == second.Columns);
 
-        var result = new double[first.Rows, first.Columns];
+        var result = new float[first.Rows, first.Columns];
 
         for (var row = 0; row < first.Rows; row++)
         {
@@ -128,9 +128,9 @@ internal class Matrix
         return new Matrix(result);
     }
 
-    public static Matrix operator *(double scalar, Matrix matrix)
+    public static Matrix operator *(float scalar, Matrix matrix)
     {
-        var result = new double[matrix.Rows, matrix.Columns];
+        var result = new float[matrix.Rows, matrix.Columns];
 
         for (var row = 0; row < matrix.Rows; row++)
         {
@@ -143,14 +143,14 @@ internal class Matrix
         return new Matrix(result);
     }
 
-    public static Matrix operator *(Matrix matrix, double scalar)
+    public static Matrix operator *(Matrix matrix, float scalar)
     {
         return scalar * matrix;
     }
 
     public static Matrix operator *(Matrix first, Matrix second)
     {
-        var result = new double[first.Rows, second.Columns];
+        var result = new float[first.Rows, second.Columns];
         var rows = result.GetLength(0);
         var cols = result.GetLength(1);
 
@@ -158,11 +158,11 @@ internal class Matrix
         {
             for (var col = 0; col < cols; col++)
             {
-                var bufFirst = ArrayPool<double>.Shared.Rent(first.Columns);
-                var bufSecond = ArrayPool<double>.Shared.Rent(first.Rows);
+                var bufFirst = ArrayPool<float>.Shared.Rent(first.Columns);
+                var bufSecond = ArrayPool<float>.Shared.Rent(first.Rows);
                 result[row, col] = first.Row(row, bufFirst).Dot(second.Column(col, bufSecond));
-                ArrayPool<double>.Shared.Return(bufFirst, true);
-                ArrayPool<double>.Shared.Return(bufSecond, true);
+                ArrayPool<float>.Shared.Return(bufFirst, true);
+                ArrayPool<float>.Shared.Return(bufSecond, true);
             }
         }
 
@@ -171,13 +171,13 @@ internal class Matrix
 
     public static Matrix Identity(int size)
     {
-        var identity = new double[size, size];
+        var identity = new float[size, size];
 
         for (var row = 0; row < size; row++)
         {
             for (var col = 0; col < size; col++)
             {
-                identity[row, col] = row == col ? 1.0d : 0d;
+                identity[row, col] = row == col ? 1.0f : 0f;
             }
         }
 
@@ -193,13 +193,13 @@ internal class Matrix
     {
         Debug.Assert(Columns == vector.Size);
 
-        var result = new double[Rows];
+        var result = new float[Rows];
         for (var i = 0; i < Rows; i++)
         {
-            var buf = ArrayPool<double>.Shared.Rent(Columns);
+            var buf = ArrayPool<float>.Shared.Rent(Columns);
             var row = Row(i, buf);
             result[i] = row.Dot(vector);
-            ArrayPool<double>.Shared.Return(buf);
+            ArrayPool<float>.Shared.Return(buf);
         }
 
         return new Vector(result);
@@ -207,10 +207,10 @@ internal class Matrix
 
     public Vector Row(int index)
     {
-        return Row(index, new double[Columns]);
+        return Row(index, new float[Columns]);
     }
 
-    public Vector Row(int index, double[] buffer)
+    public Vector Row(int index, float[] buffer)
     {
         Debug.Assert(index <= Rows);
         for (var col = 0; col < Columns; col++)
@@ -221,7 +221,7 @@ internal class Matrix
         return new Vector(buffer, Columns);
     }
 
-    public Vector Column(int index, double[] buf)
+    public Vector Column(int index, float[] buf)
     {
         Debug.Assert(index <= Columns);
         for (var row = 0; row < Rows; row++)
@@ -232,9 +232,9 @@ internal class Matrix
         return new Vector(buf, Rows);
     }
 
-    private double[] BackSubstitution(double[,] lu, int[] indices, double[] b)
+    private float[] BackSubstitution(float[,] lu, int[] indices, float[] b)
     {
-        var x = (double[])b.Clone();
+        var x = (float[])b.Clone();
         var ii = 0;
         for (var row = 0; row < Rows; row++)
         {
@@ -272,12 +272,12 @@ internal class Matrix
         return x;
     }
 
-    private (double[,] Result, int[] Indices) GetDecomposition()
+    private (float[,] Result, int[] Indices) GetDecomposition()
     {
         var maxRow = 0;
         var vv = Enumerable.Range(0, Rows)
             .Select(row => 1.0d / Enumerable.Range(0, Columns).Select(col => Math.Abs(_values[row, col])).Max()).ToArray();
-        var result = (double[,])_values.Clone();
+        var result = (float[,])_values.Clone();
         var index = new int[Rows];
         var d = 1.0d;
 
@@ -329,7 +329,7 @@ internal class Matrix
 
             if (col != Rows - 1)
             {
-                var tmp = 1.0d / result[col, col];
+                var tmp = 1.0f / result[col, col];
                 for (var row = col + 1; row < Rows; row++)
                 {
                     result[row, col] *= tmp;

@@ -7,15 +7,15 @@ namespace SortCS.Kalman;
 
 internal struct Vector
 {
-    private readonly double[] _values;
+    private readonly float[] _values;
 
-    public Vector(params double[] values)
+    public Vector(params float[] values)
     {
         _values = values;
         Size = values.Length;
     }
 
-    public Vector(double[] values, int size)
+    public Vector(float[] values, int size)
     {
         if (size > values.Length)
         {
@@ -28,13 +28,13 @@ internal struct Vector
 
     public Vector(int size)
     {
-        _values = new double[size];
+        _values = new float[size];
         Size = size;
     }
 
     public int Size { get; }
 
-    public double this[int index]
+    public float this[int index]
     {
         get => index <= Size ? _values[index] : throw new ArgumentOutOfRangeException(nameof(index));
         set
@@ -51,7 +51,7 @@ internal struct Vector
     public static Vector operator -(Vector first, Vector second)
     {
         Debug.Assert(first.Size == second.Size);
-        var resultArray = new double[first.Size];
+        var resultArray = new float[first.Size];
         for (var i = 0; i < first.Size; i++)
         {
             resultArray[i] = first[i] - second[i];
@@ -63,7 +63,7 @@ internal struct Vector
     public static Vector operator +(Vector first, Vector second)
     {
         Debug.Assert(first.Size == second.Size);
-        var resultArray = new double[first.Size];
+        var resultArray = new float[first.Size];
         for (var i = 0; i < first.Size; i++)
         {
             resultArray[i] = first[i] + second[i];
@@ -72,11 +72,11 @@ internal struct Vector
         return new Vector(resultArray);
     }
 
-    public double Dot(Vector other)
+    public float Dot(Vector other)
     {
         Debug.Assert(Size == other.Size, $"Vectors should be of equal length {Size} != {other.Size}.");
         Debug.Assert(Size > 0);
-        double sum = 0;
+        float sum = 0;
         for (var i = 0; i < Size; i++)
         {
             sum += _values[i] * other[i];
@@ -90,7 +90,7 @@ internal struct Vector
         return string.Join(", ", _values.Select(v => v.ToString("###0.00", CultureInfo.InvariantCulture)));
     }
 
-    internal Vector Append(params double[] extraElements)
+    internal Vector Append(params float[] extraElements)
     {
         return new Vector(_values.Take(Size).Concat(extraElements).ToArray());
     }
