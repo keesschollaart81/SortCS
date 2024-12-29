@@ -6,7 +6,7 @@ namespace SortCS.Kalman;
 internal class KalmanBoxTracker
 {
     private static readonly Matrix _stateTransitioningMatrix = new(
-        new double[,]
+        new float[,]
         {
             { 1, 0, 0, 0, 1, 0, 0 },
             { 0, 1, 0, 0, 0, 1, 0 },
@@ -18,7 +18,7 @@ internal class KalmanBoxTracker
         });
 
     private static readonly Matrix _measurementFunction = new(
-        new double[,]
+        new float[,]
         {
             { 1, 0, 0, 0, 0, 0, 0 },
             { 0, 1, 0, 0, 0, 0, 0 },
@@ -27,7 +27,7 @@ internal class KalmanBoxTracker
         });
 
     private static readonly Matrix _uncertaintyCovariances = new(
-        new double[,]
+        new float[,]
         {
             { 10, 0, 0, 0, 0, 0, 0 },
             { 0, 10, 0, 0, 0, 0, 0 },
@@ -38,7 +38,7 @@ internal class KalmanBoxTracker
             { 0, 0, 0, 0, 0, 0, 10000 }
         });
 
-    private static readonly Matrix _measurementUncertainty = new(new double[,]
+    private static readonly Matrix _measurementUncertainty = new(new float[,]
     {
         { 1, 0, 0, 0 },
         { 0, 1, 0, 0 },
@@ -47,15 +47,15 @@ internal class KalmanBoxTracker
     });
 
     private static readonly Matrix _processUncertainty = new(
-        new[,]
+        new float[,]
         {
             { 1, 0, 0, 0, 0, 0, 0 },
             { 0, 1, 0, 0, 0, 0, 0 },
             { 0, 0, 1, 0, 0, 0, 0 },
             { 0, 0, 0, 1, 0, 0, 0 },
-            { 0, 0, 0, 0, .01, 0, 0 },
-            { 0, 0, 0, 0, 0, .01, 0 },
-            { 0, 0, 0, 0, 0, 0, .0001 }
+            { 0, 0, 0, 0, .01f, 0, 0 },
+            { 0, 0, 0, 0, 0, .01f, 0 },
+            { 0, 0, 0, 0, 0, 0, .0001f }
         });
 
     private readonly KalmanFilter _filter;
@@ -95,7 +95,7 @@ internal class KalmanBoxTracker
     private static Vector ToMeasurement(RectangleF box)
     {
         var center = new PointF(box.Left + (box.Width / 2f), box.Top + (box.Height / 2f));
-        return new Vector(center.X, center.Y, box.Width * (double)box.Height, box.Width / (double)box.Height);
+        return new Vector(center.X, center.Y, box.Width * box.Height, box.Width / box.Height);
     }
 
     private static RectangleF ToBoundingBox(Vector currentState)

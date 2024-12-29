@@ -10,7 +10,7 @@ internal class KalmanFilter
     private readonly int _stateSize;
     private readonly int _measurementSize;
     private readonly Matrix _identity;
-    private readonly double _alphaSq;
+    private readonly float _alphaSq;
 
     private Vector _currentState;
     private Matrix _uncertaintyCovariances;
@@ -26,7 +26,7 @@ internal class KalmanFilter
         _stateSize = stateSize;
         _measurementSize = measurementSize;
         _identity = Matrix.Identity(stateSize);
-        _alphaSq = 1.0d;
+        _alphaSq = 1.0f;
 
         StateTransitionMatrix = _identity; // F
         MeasurementFunction = new Matrix(_measurementSize, _stateSize); //  H
@@ -99,7 +99,7 @@ internal class KalmanFilter
             : throw new ArgumentException($"Matrix must be of size {_measurementSize}x{_stateSize}.", nameof(value));
     }
 
-    public void SetState(int index, double values)
+    public void SetState(int index, float values)
     {
         _currentState[index] = values;
     }

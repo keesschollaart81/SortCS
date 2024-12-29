@@ -158,7 +158,7 @@ public class SortTracker : ITracker
         return (matchedBoxes, unmatchedBoxes);
     }
 
-    private static double IoU(RectangleF a, RectangleF b)
+    private static float IoU(RectangleF a, RectangleF b)
     {
         var intersection = RectangleF.Intersect(a, b);
         if (intersection.IsEmpty)
@@ -166,8 +166,8 @@ public class SortTracker : ITracker
             return 0;
         }
 
-        var intersectArea = (1.0 + intersection.Width) * (1.0 + intersection.Height);
-        var unionArea = ((1.0 + a.Width) * (1.0 + a.Height)) + ((1.0 + b.Width) * (1.0 + b.Height)) - intersectArea;
-        return intersectArea / (unionArea + 1e-5);
+        var intersectArea = (1.0f + intersection.Width) * (1.0f + intersection.Height);
+        var unionArea = ((1.0f + a.Width) * (1.0f + a.Height)) + ((1.0f + b.Width) * (1.0f + b.Height)) - intersectArea;
+        return intersectArea / (unionArea + 1e-5f);
     }
 }
