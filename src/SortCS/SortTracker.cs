@@ -1,6 +1,4 @@
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using HungarianAlgorithm;
 using Microsoft.Extensions.Logging;
 using SortCS.Kalman;
@@ -10,7 +8,7 @@ namespace SortCS;
 public class SortTracker : ITracker
 {
     private readonly Dictionary<int, (Track Track, KalmanBoxTracker Tracker)> _trackers;
-    private readonly ILogger<SortTracker> _logger;
+    private readonly ILogger<SortTracker>? _logger;
     private int _trackerIndex = 1; // MOT Evaluations requires a start index of 1
 
     public SortTracker(float iouThreshold = 0.3f, int maxMisses = 3)
@@ -28,7 +26,12 @@ public class SortTracker : ITracker
 
     public float IouThreshold { get; private init; }
 
-    public int MaxMisses { get; private init; }
+    /// <summary>
+    /// Gets or sets the maximum number of consecutive frames an object may be occluded (unmatched)
+    /// before its track is ended. Can be adjusted at runtime; the new value takes effect on the next
+    /// <see cref="Track"/> call.
+    /// </summary>
+    public int MaxMisses { get; set; }
 
     public IEnumerable<Track> Track(IEnumerable<RectangleF> boxes)
     {
@@ -80,7 +83,7 @@ public class SortTracker : ITracker
             var track = new Track
             {
                 TrackId = _trackerIndex++,
-                History = new List<RectangleF>() { unmatchedBox },
+                History = [unmatchedBox],
                 Misses = 0,
                 State = TrackState.Started,
                 TotalMisses = 0,
@@ -101,9 +104,8 @@ public class SortTracker : ITracker
             return;
         }
 
-        var tracksWithHistory = tracks.Where(x => x.History != null);
-        var longest = tracksWithHistory.Max(x => x.History.Count);
-        var anyStarted = tracksWithHistory.Any(x => x.History.Count == 1 && x.Misses == 0);
+        var longest = tracks.Max(x => x.History.Count);
+        var anyStarted = tracks.Any(x => x.History.Count == 1 && x.Misses == 0);
         var ended = tracks.Count(x => x.State == TrackState.Ended);
         if (anyStarted || ended > 0)
         {

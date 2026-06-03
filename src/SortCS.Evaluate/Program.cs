@@ -1,78 +1,74 @@
-﻿using System.IO;
 using System.CommandLine;
-using System.CommandLine.Invocation;
-using System.Threading.Tasks;
-using System.Linq;
-using System.Net.Http;
 using System.IO.Compression;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using SortCS;
+using SortCS.Evaluate;
 
-namespace SortCS.Evaluate;
-
-class Program
+var services = new ServiceCollection();
+services.AddLogging(loggerBuilder =>
 {
-    private static ILogger<Program> _logger;
+    loggerBuilder.ClearProviders();
+    loggerBuilder.AddConsole();
+});
+var serviceProvider = services.BuildServiceProvider();
 
-    static async Task<int> Main(string[] args)
+var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
+
+var dataFolderOption = new Option<DirectoryInfo>("--data-folder")
+{
+    Description = "Location where data is stored using this format: https://github.com/JonathonLuiten/TrackEval/blob/master/docs/MOTChallenge-format.txt",
+    DefaultValueFactory = _ => new DirectoryInfo(@"../../../../../../TrackEval/data") // Assuming SortCS/src/SortCS.Evaluate/bin/debug/net10.0 is working directory
+};
+
+var benchmarkOption = new Option<string>("--benchmark")
+{
+    Description = "Name of the benchmark, e.g. MOT15, MO16, MOT17 or MOT20 (default : MOT20)",
+    DefaultValueFactory = _ => "MOT20"
+};
+
+var splitOption = new Option<string>("--split-to-eval")
+{
+    Description = "Data split on which to evalute e.g. train, test (default : train)",
+    DefaultValueFactory = _ => "train"
+};
+
+var rootCommand = new RootCommand("App to evaluate the SortCS tracking algoritm")
+{
+    dataFolderOption,
+    benchmarkOption,
+    splitOption
+};
+
+rootCommand.SetAction(async (parseResult, cancellationToken) =>
+{
+    var dataFolder = parseResult.GetValue(dataFolderOption)!;
+    var benchmark = parseResult.GetValue(benchmarkOption)!;
+    var splitToEval = parseResult.GetValue(splitOption)!;
+
+    if (!dataFolder.Exists || !dataFolder.GetDirectories().Any())
     {
-        var services = new ServiceCollection();
-        services.AddLogging(loggerBuilder =>
-        {
-            loggerBuilder.ClearProviders();
-            loggerBuilder.AddConsole();
-        });
-        var serviceProvider = services.BuildServiceProvider();
-
-        _logger = serviceProvider.GetService<ILogger<Program>>();
-
-        var dataFolderOption = new Option<DirectoryInfo>(
-                       "--data-folder",
-                       getDefaultValue: () => new DirectoryInfo(@"../../../../../../TrackEval/data"), // Sssuming SortCS/src/SortCS.Evaluate/bin/debug/net5.0 is working directory 
-                       description: "Location where data is stored using this format: https://github.com/JonathonLuiten/TrackEval/blob/master/docs/MOTChallenge-format.txt");
-
-        var benchmarkOption = new Option<string>(
-            "--benchmark",
-            getDefaultValue: () => "MOT20",
-            description: "Name of the benchmark, e.g. MOT15, MO16, MOT17 or MOT20 (default : MOT20)");
-
-        var splitOption = new Option<string>(
-               "--split-to-eval",
-               getDefaultValue: () => "train",
-               description: "Data split on which to evalute e.g. train, test (default : train)");
-
-        var rootCommand = new RootCommand
-        {
-            dataFolderOption,benchmarkOption,splitOption
-        };
-
-        rootCommand.Description = "App to evaluate the SortCS tracking algoritm";
-        rootCommand.SetHandler(async (dataFolder, benchmark, splitToEval) =>
-        {
-            if (!dataFolder.Exists || !dataFolder.GetDirectories().Any())
-            {
-                await DownloadTrackEvalExampleAsync(dataFolder);
-            }
-            var sortCsEvaluator = new SortCsEvaluator(dataFolder, benchmark, splitToEval, serviceProvider.GetService<ILogger<SortTracker>>());
-            await sortCsEvaluator.EvaluateAsync();
-        }, dataFolderOption, benchmarkOption, splitOption);
-
-        return await rootCommand.InvokeAsync(args);
+        await DownloadTrackEvalExampleAsync(dataFolder, cancellationToken);
     }
 
-    private static async Task DownloadTrackEvalExampleAsync(DirectoryInfo groundTruthFolder)
-    {
-        var dataZipUrl = "https://omnomnom.vision.rwth-aachen.de/data/TrackEval/data.zip";
-        groundTruthFolder.Create();
-        var targetZipFile = Path.Combine(groundTruthFolder.ToString(), "..", "data.zip");
-        _logger.LogInformation(Path.GetFullPath(targetZipFile));
+    var sortCsEvaluator = new SortCsEvaluator(dataFolder, benchmark, splitToEval, serviceProvider.GetRequiredService<ILogger<SortTracker>>());
+    await sortCsEvaluator.EvaluateAsync();
+});
 
-        _logger.LogInformation($"Downloading data.zip (150mb) from {dataZipUrl} to {targetZipFile}");
-        using var httpClient = new HttpClient();
-        var zipStream = await httpClient.GetStreamAsync(dataZipUrl);
-        using var fs = new FileStream(targetZipFile, FileMode.CreateNew);
-        await zipStream.CopyToAsync(fs);
-        ZipFile.ExtractToDirectory(targetZipFile, Path.Combine(groundTruthFolder.ToString(), ".."));
-        _logger.LogInformation("data.zip downloaded & extracted");
-    }
+return await rootCommand.Parse(args).InvokeAsync();
+
+async Task DownloadTrackEvalExampleAsync(DirectoryInfo groundTruthFolder, CancellationToken cancellationToken)
+{
+    const string dataZipUrl = "https://omnomnom.vision.rwth-aachen.de/data/TrackEval/data.zip";
+    groundTruthFolder.Create();
+    var targetZipFile = Path.Combine(groundTruthFolder.ToString(), "..", "data.zip");
+    logger.LogInformation("{TargetZipFile}", Path.GetFullPath(targetZipFile));
+
+    logger.LogInformation("Downloading data.zip (150mb) from {DataZipUrl} to {TargetZipFile}", dataZipUrl, targetZipFile);
+    using var httpClient = new HttpClient();
+    var zipStream = await httpClient.GetStreamAsync(dataZipUrl, cancellationToken);
+    await using var fs = new FileStream(targetZipFile, FileMode.CreateNew);
+    await zipStream.CopyToAsync(fs, cancellationToken);
+    ZipFile.ExtractToDirectory(targetZipFile, Path.Combine(groundTruthFolder.ToString(), ".."));
+    logger.LogInformation("data.zip downloaded & extracted");
 }

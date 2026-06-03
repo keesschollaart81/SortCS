@@ -1,8 +1,5 @@
-using System;
 using System.Buffers;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 
 namespace SortCS.Kalman;
 
@@ -11,6 +8,7 @@ namespace SortCS.Kalman;
 internal class Matrix
 {
     private readonly float[,] _values;
+    private Matrix? _transposed;
 
     public Matrix(float[,] values)
     {
@@ -44,9 +42,9 @@ internal class Matrix
     {
         get
         {
-            if (field != null)
+            if (_transposed != null)
             {
-                return field;
+                return _transposed;
             }
 
             var result = new float[Columns, Rows];
@@ -59,9 +57,9 @@ internal class Matrix
                 }
             }
 
-            field = new Matrix(result);
+            _transposed = new Matrix(result);
 
-            return field;
+            return _transposed;
         }
     }
 

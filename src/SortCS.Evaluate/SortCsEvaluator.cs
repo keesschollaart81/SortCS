@@ -1,13 +1,8 @@
-using System;
-using System.IO;
-using System.Threading.Tasks;
-using System.Linq;
-using System.Collections.Generic;
-using IniParser;
-using System.Globalization;
-using System.Drawing;
-using Microsoft.Extensions.Logging;
 using System.Diagnostics;
+using System.Drawing;
+using System.Globalization;
+using IniParser;
+using Microsoft.Extensions.Logging;
 
 namespace SortCS.Evaluate;
 
@@ -33,14 +28,9 @@ public class SortCsEvaluator
     public async Task EvaluateAsync()
     {
         var stopwatch = Stopwatch.StartNew();
-        var tasks = new List<Task<int>>();
-        foreach (var benchmarkDir in _dataFolderMot.GetDirectories())
-        {
-            tasks.Add(EvaluateBenchMark(benchmarkDir));
-        }
-        await Task.WhenAll(tasks);
+        var frameCounts = await Task.WhenAll(_dataFolderMot.GetDirectories().Select(EvaluateBenchMark));
         stopwatch.Stop();
-        var totalFrames = tasks.Sum(x => x.Result);
+        var totalFrames = frameCounts.Sum();
         _logger.LogInformation("Finished evaluating {totalFrames} frames in {totalSeconds:0.} seconds ({fps:0.0} fps)", totalFrames, stopwatch.Elapsed.TotalSeconds, totalFrames / stopwatch.Elapsed.TotalSeconds);
     }
 
@@ -80,7 +70,7 @@ public class SortCsEvaluator
 
     private async Task FramesToDetectionsFile(Dictionary<int, List<RectangleF>> frames, string path)
     {
-        using var file = new StreamWriter(path, false);
+        await using var file = new StreamWriter(path, false);
 
         ITracker tracker = new SortTracker(_logger);
         foreach (var frame in frames)
@@ -88,7 +78,7 @@ public class SortCsEvaluator
             var tracks = tracker.Track(frame.Value);
             foreach (var track in tracks)
             {
-                if (track.State == TrackState.Started || track.State == TrackState.Active)
+                if (track.State is TrackState.Started or TrackState.Active)
                 {
                     //var boxForLog = track.History.Last();
                     var boxForLog = track.Prediction;
@@ -119,20 +109,22 @@ public class SortCsEvaluator
         foreach (var line in lines)
         {
             var parts = line.Split(',');
-            var frameId = int.Parse(parts[0]);
-            var gtTrackId = int.Parse(parts[1]);
+            var frameId = int.Parse(parts[0], CultureInfo.InvariantCulture);
             var bbLeft = float.Parse(parts[2], numberInfo);
             var bbTop = float.Parse(parts[3], numberInfo);
             var bbWidth = float.Parse(parts[4], numberInfo);
             var bbHeight = float.Parse(parts[5], numberInfo);
             var bbConf = float.Parse(parts[6], numberInfo);
-            if (!frames.ContainsKey(frameId))
+
+            if (!frames.TryGetValue(frameId, out var boxes))
             {
-                frames.Add(frameId, new List<RectangleF>());
+                boxes = [];
+                frames[frameId] = boxes;
             }
+
             if (bbConf > 0)
             {
-                frames[frameId].Add(new RectangleF(bbLeft, bbTop, bbWidth, bbHeight));
+                boxes.Add(new RectangleF(bbLeft, bbTop, bbWidth, bbHeight));
             }
         }
 

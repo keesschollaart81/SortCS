@@ -1,25 +1,25 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup> 
-    <TargetFramework>net9.0</TargetFramework>
-    <LangVersion>preview</LangVersion>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>  
+  <PropertyGroup>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Kees Schollaart, Maarten van Sambeek</Authors>
     <Company>Vision Intelligence</Company>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <AssemblyVersion>1.1.0.0</AssemblyVersion>
-    <FileVersion>1.1.0.0</FileVersion>
-    <Version>1.1.0.0</Version>
+    <AssemblyVersion>1.11.0.0</AssemblyVersion>
+    <FileVersion>1.11.0.0</FileVersion>
+    <Version>1.11.0</Version>
     <Product>SortCS</Product>
     <Summary>SortCS is a 'Multiple Object Tracker'.</Summary>
     <Description>SortCS is a 'Multiple Object Tracker'</Description>
     <PackageTags>Object, Tracking, Multiple, AI, Computer Vision, Vision</PackageTags>
-    <PackageReleaseNotes>- Symbols package added to NuGet package.</PackageReleaseNotes>
+    <PackageReleaseNotes>- Targets .NET 10.
+- Updated dependencies to their latest versions.
+- SortTracker.MaxMisses can now be adjusted at runtime.</PackageReleaseNotes>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <RepositoryType>Github</RepositoryType>
     <RepositoryUrl>https://github.com/keesschollaart81/SortCS.git</RepositoryUrl>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <NeutralLanguage>en</NeutralLanguage>
     <PackageProjectUrl>https://github.com/keesschollaart81/SortCS</PackageProjectUrl>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -29,22 +29,22 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <DebugType>embedded</DebugType>
   </PropertyGroup>
-  
+
   <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
-  
+
   <ItemGroup>
-    <PackageReference Include="HungarianAlgorithm" Version="2.2.8" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.0" />
-    <PackageReference Include="System.Drawing.Common" Version="9.0.0" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="HungarianAlgorithm" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
   </ItemGroup>
 
   <Import Project="../../analyzers.targets" />
 
   <ItemGroup>
     <None Include="./icon.png" Pack="true" PackagePath="" />
-    <None Include="../../LICENSE.txt" Pack="true" PackagePath="LICENSE.txt"/>
+    <None Include="../../LICENSE.txt" Pack="true" PackagePath="LICENSE.txt" />
+    <None Include="../../README.md" Pack="true" PackagePath="README.md" />
   </ItemGroup>
+
 </Project>
