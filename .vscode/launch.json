@@ -10,9 +10,9 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/src/SortCS.Evaluate/bin/Debug/net5.0/SortCS.Evaluate.dll",
+            "program": "${workspaceFolder}/src/SortCS.Evaluate/bin/Debug/net10.0/SortCS.Evaluate.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/src/SortCS.Evaluate/bin/Debug/net5.0/",
+            "cwd": "${workspaceFolder}/src/SortCS.Evaluate/bin/Debug/net10.0/",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
             "console": "internalConsole",
             "stopAtEntry": false

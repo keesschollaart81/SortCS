@@ -1,7 +1,5 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace SortCS.Tests;
 
@@ -57,7 +55,7 @@ public class SortTrackerTests
         }
 
         // Assert
-        Assert.AreEqual(4, tracks.Where(x => x.State == TrackState.Active).Count());
+        Assert.AreEqual(4, tracks.Count(x => x.State == TrackState.Active));
     }
 
     [TestMethod]
@@ -116,5 +114,30 @@ public class SortTrackerTests
         Assert.AreEqual(0.5, lastBoxOfTrack2.Top, 0.00);
         Assert.AreEqual(5, complexTrack1.History.Count);
         Assert.AreEqual(5, complexTrack2.History.Count);
+    }
+
+    [TestMethod]
+    public void SortTracker_MaxMisses_CanBeAdjustedAtRuntime()
+    {
+        // Arrange: a tracker that would normally drop a track after a single missed frame.
+        var sut = new SortTracker(iouThreshold: 0.3f, maxMisses: 1);
+        var box = new RectangleF(100, 100, 50, 50);
+
+        sut.Track([box]); // Started
+        sut.Track([box]); // Active
+
+        // Act: widen the allowed occlusion gap on the fly.
+        sut.MaxMisses = 5;
+
+        Track[] tracks = [];
+        for (var i = 0; i < 4; i++)
+        {
+            tracks = sut.Track([]).ToArray(); // four consecutive misses
+        }
+
+        // Assert: with MaxMisses raised to 5, the track survives four misses instead of being removed.
+        Assert.AreEqual(5, sut.MaxMisses);
+        Assert.IsTrue(tracks.Any(t => t.State == TrackState.Ending));
+        Assert.IsFalse(tracks.Any(t => t.State == TrackState.Ended));
     }
 }

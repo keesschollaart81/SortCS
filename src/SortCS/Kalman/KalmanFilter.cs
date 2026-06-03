@@ -1,4 +1,3 @@
-using System;
 using System.Diagnostics.CodeAnalysis;
 
 namespace SortCS.Kalman;
@@ -13,13 +12,13 @@ internal class KalmanFilter
     private readonly float _alphaSq;
 
     private Vector _currentState;
-    private Matrix _uncertaintyCovariances;
-    private Matrix _pht;
-    private Matrix _s;
-    private Matrix _si;
-    private Matrix _k;
-    private Matrix _kh;
-    private Matrix _ikh;
+    private Matrix _uncertaintyCovariances = null!; // assigned via the UncertaintyCovariances init accessor in the constructor
+    private Matrix? _pht;
+    private Matrix? _s;
+    private Matrix? _si;
+    private Matrix? _k;
+    private Matrix? _kh;
+    private Matrix? _ikh;
 
     public KalmanFilter(int stateSize, int measurementSize)
     {

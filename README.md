@@ -25,7 +25,12 @@ SortCS is a 'Multiple Object Tracker' as described in [this paper](https://arxiv
 ```cs
 using SortCS;
 
-ITracker tracker = new SortTracker(iouThreshold = 0.3f, maxMisses = 3);
+// maxMisses is the number of consecutive frames an object may be occluded before its track ends.
+var tracker = new SortTracker(iouThreshold: 0.3f, maxMisses: 3);
+
+// MaxMisses can be adjusted at runtime; the new value takes effect on the next Track(..) call.
+tracker.MaxMisses = 5;
+
 tracker.Track(new[]
 {
     new RectangleF(1695,383,159,343),
